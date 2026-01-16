@@ -1,13 +1,17 @@
 pipeline {
     agent any
 
-    triggers {
-        triggerOnPush: true,
-        triggerOnMergeRequest: true,
-        branchFilterType: 'All'
-    }
-
     stages {
+        stage('Build Docker Image') {
+            steps {
+                container('docker') {
+                    sh '''
+                        docker images
+                    '''
+                }
+            }
+        }
+
         stage('Clone Code') {
             steps {
                 echo "Hello"
