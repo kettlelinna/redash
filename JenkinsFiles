@@ -2,11 +2,9 @@ pipeline {
     agent any
 
     triggers {
-        gitlab(
-            triggerOnPush: true,
-            triggerOnMergeRequest: true,
-            branchFilterType: 'All'
-        )
+        triggerOnPush: true,
+        triggerOnMergeRequest: true,
+        branchFilterType: 'All'
     }
 
     stages {
