@@ -4,9 +4,8 @@ pipeline {
     stages {
         stage('Build Docker Image') {
             steps {
-                    sh '''
-                        docker images
-                    '''
+                    sh "pwd"
+                    sh "ls -l"
             }
         }
 
