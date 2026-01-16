@@ -106,6 +106,26 @@ def render_token_login_page(template, org_slug, token, invite):
         status_code,
     )
 
+@routes.route("/query_api_key", methods=["POST"])
+def query_api_key():
+    req = request.get_json(force=True)
+    org = current_org._get_current_object()
+
+    status_code = 200
+    api_key = None
+    if ("password" not in req or "email" not in req) or (not req["password"] or not req["email"]):
+        flash("Password and email are mandatory.")
+        status_code = 400
+    else:
+        user = models.User.get_by_email_and_org(req["email"], org)
+        if user and not user.is_disabled and user.verify_password(req["password"]):
+            api_key = user.api_key
+        else:
+            flash("User is unavailable.")
+            status_code = 500
+
+    return json_response({"api_key": api_key, "status": status_code})
+
 @routes.route(org_scoped_rule("/register"), methods=["POST"])
 def register(org_slug=None):
     org = current_org._get_current_object()
@@ -146,7 +166,7 @@ def register(org_slug=None):
                 flash("Email already taken.")
                 status_code = 500
     message = "user register successful." if status_code == 200 else "failed to register user."
-    return json_response({"message": message})
+    return json_response({"message": message, "status": status_code})
 
 
 @routes.route(org_scoped_rule("/invite/<token>"), methods=["GET", "POST"])
