@@ -1,12 +1,12 @@
 pipeline {
-    agent node1
+    agent {
+        label 'node1'
+    }
 
     stages {
         stage('Build Docker Image') {
             steps {
-                    sh '''
-                        docker images
-                    '''
+                sh "docker images"
             }
         }
 
