@@ -4,6 +4,7 @@ from flask import abort, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required, login_user, logout_user
 from itsdangerous import BadSignature, SignatureExpired
 from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.exc import IntegrityError
 
 from redash import __version__, limiter, models, settings
 from redash.authentication import current_org, get_login_url, get_next_path
@@ -14,7 +15,7 @@ from redash.authentication.account import (
     validate_token,
 )
 from redash.handlers import routes
-from redash.handlers.base import json_response, org_scoped_rule
+from redash.handlers.base import json_response, org_scoped_rule, require_fields
 from redash.version_check import get_latest_version
 
 logger = logging.getLogger(__name__)
@@ -104,6 +105,48 @@ def render_token_login_page(template, org_slug, token, invite):
         ),
         status_code,
     )
+
+@routes.route(org_scoped_rule("/register"), methods=["POST"])
+def register(org_slug=None):
+    org = current_org._get_current_object()
+
+    req = request.get_json(force=True)
+
+    status_code = 200
+    if "password" not in req or "email" not in req or "name" not in req or "groups" not in req:
+        flash("Bad Request")
+        status_code = 400
+    elif not req["password"] or not req["email"] or not req["name"] or not req["groups"]:
+        flash("Cannot use empty password/email/name/groups.")
+        status_code = 400
+    elif len(req["password"]) < 6:
+        flash("Password length is too short (<6).")
+        status_code = 400
+    elif "@" not in req["email"]:
+        flash("Bad email address.")
+        status_code = 400
+    else:
+        groups = req["groups"].split(",")
+        groups = [g for g in groups]
+
+        user = models.User(
+            org=org,
+            name=req["name"],
+            email=req["email"],
+            is_invitation_pending=False,
+            group_ids=[groups],
+        )
+        user.hash_password(req["password"])
+
+        try:
+            models.db.session.add(user)
+            models.db.session.commit()
+        except IntegrityError as e:
+            if "email" in str(e):
+                flash("Email already taken.")
+                status_code = 500
+    message = "user register successful." if status_code == 200 else "failed to register user."
+    return json_response({"message": message})
 
 
 @routes.route(org_scoped_rule("/invite/<token>"), methods=["GET", "POST"])
