@@ -23,19 +23,21 @@ ENV BABEL_ENV=${code_coverage:+test}
 # Avoid issues caused by lags in disk and network I/O speeds when working on top of QEMU emulation for multi-platform image building.
 RUN yarn config set network-timeout 300000
 
-RUN if [ "x$skip_frontend_build" = "x" ] ; then yarn --frozen-lockfile --network-concurrency 1; fi
+#RUN if [ "x$skip_frontend_build" = "x" ] ; then yarn --frozen-lockfile --network-concurrency 1; fi
+RUN yarn --frozen-lockfile --network-concurrency 1
 
 COPY --chown=redash client /frontend/client
 COPY --chown=redash webpack.config.js /frontend/
-RUN <<EOF
-  if [ "x$skip_frontend_build" = "x" ]; then
-    yarn build
-  else
-    mkdir -p /frontend/client/dist
-    touch /frontend/client/dist/multi_org.html
-    touch /frontend/client/dist/index.html
-  fi
-EOF
+RUN yarn build
+#RUN <<EOF
+#  if [ "x$skip_frontend_build" = "x" ]; then
+#    yarn build
+#  else
+#    mkdir -p /frontend/client/dist
+#    touch /frontend/client/dist/multi_org.html
+#    touch /frontend/client/dist/index.html
+#  fi
+#EOF
 
 FROM python:3.10-slim-bookworm
 

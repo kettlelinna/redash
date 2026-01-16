@@ -6,13 +6,7 @@ pipeline {
     stages {
         stage('Build Docker Image') {
             steps {
-                sh "docker images"
-            }
-        }
-
-        stage('Clone Code') {
-            steps {
-                echo "Hello"
+                sh "docker build -t myredash:0.0.1 -f ./Dockerfile ."
             }
         }
     }
