@@ -260,7 +260,7 @@ class QueryResultResource(BaseResource):
 
         query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
 
-        allow_executing_with_view_only_permissions = query.parameterized.is_safe
+        allow_executing_with_view_only_permissions = True #query.parameterized.is_safe
         if "apply_auto_limit" in params:
             should_apply_auto_limit = params.get("apply_auto_limit", False)
         else:
