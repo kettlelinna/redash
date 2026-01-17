@@ -266,6 +266,7 @@ class QueryResultResource(BaseResource):
         else:
             should_apply_auto_limit = query.options.get("apply_auto_limit", False)
 
+        parameter_values['email'] = self.current_user.email
         if has_access(query, self.current_user, allow_executing_with_view_only_permissions):
             return run_query(
                 query.parameterized,
