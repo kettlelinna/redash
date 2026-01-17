@@ -113,59 +113,69 @@ def query_api_key():
 
     status_code = 200
     api_key = None
+    error_message = None
     if ("password" not in req or "email" not in req) or (not req["password"] or not req["email"]):
-        flash("Password and email are mandatory.")
+        error_message = "Password and email are mandatory."
         status_code = 400
     else:
         user = models.User.get_by_email_and_org(req["email"], org)
         if user and not user.is_disabled and user.verify_password(req["password"]):
             api_key = user.api_key
         else:
-            flash("User is unavailable.")
+            error_message = "User is unavailable."
             status_code = 500
 
-    return json_response({"api_key": api_key, "status": status_code})
+    if status_code != 200:
+        return json_response({"message": error_message, "status": status_code})
+    else:
+        return json_response({"api_key": api_key, "status": status_code})
 
-@routes.route(org_scoped_rule("/register"), methods=["POST"])
-def register(org_slug=None):
+@routes.route("/register", methods=["POST"])
+def register():
     org = current_org._get_current_object()
 
     req = request.get_json(force=True)
 
     status_code = 200
-    if "password" not in req or "email" not in req or "name" not in req or "groups" not in req:
-        flash("Bad Request")
+    error_message = None
+    if "password" not in req or "email" not in req or "name" not in req or "group" not in req:
+        error_message = "password/email/name/group are mandatory."
         status_code = 400
-    elif not req["password"] or not req["email"] or not req["name"] or not req["groups"]:
-        flash("Cannot use empty password/email/name/groups.")
+    elif not req["password"] or not req["email"] or not req["name"] or not req["group"]:
+        error_message = "Cannot use empty password/email/name/group."
+        status_code = 400
+    elif "admin" == req["group"].lower():
+        error_message = "Admin is not been allow."
         status_code = 400
     elif len(req["password"]) < 6:
-        flash("Password length is too short (<6).")
-        status_code = 400
-    elif "@" not in req["email"]:
-        flash("Bad email address.")
+        error_message = "Password length is too short (<6)."
         status_code = 400
     else:
-        groups = req["groups"].split(",")
-        groups = [g for g in groups]
+        groups = models.Group.find_by_name(org, [req["group"].lower()])
+        if len(groups) == 0:
+            error_message = "group not exist."
+            status_code = 400
+        else:
+            user = models.User(
+                org=org,
+                name=req["name"],
+                email=req["email"],
+                is_invitation_pending=False,
+                group_ids=[g.id for g in groups],
+            )
+            user.hash_password(req["password"])
 
-        user = models.User(
-            org=org,
-            name=req["name"],
-            email=req["email"],
-            is_invitation_pending=False,
-            group_ids=[groups],
-        )
-        user.hash_password(req["password"])
-
-        try:
-            models.db.session.add(user)
-            models.db.session.commit()
-        except IntegrityError as e:
-            if "email" in str(e):
-                flash("Email already taken.")
+            try:
+                models.db.session.add(user)
+                models.db.session.commit()
+            except IntegrityError as e:
+                if "email" in str(e):
+                    error_message = "Email already taken."
+                    status_code = 500
+            except Exception as e:
+                error_message = str(e)
                 status_code = 500
-    message = "user register successful." if status_code == 200 else "failed to register user."
+    message = "Register successful." if status_code == 200 else error_message
     return json_response({"message": message, "status": status_code})
 
 
@@ -257,9 +267,13 @@ def login(org_slug=None):
             org = current_org._get_current_object()
             user = models.User.get_by_email_and_org(request.form["email"], org)
             if user and not user.is_disabled and user.verify_password(request.form["password"]):
-                remember = "remember" in request.form
-                login_user(user, remember=remember)
-                return redirect(next_path)
+                admin_group = org.admin_group
+                if admin_group.id not in user.group_ids:
+                    flash("User is not been allow login.")
+                else:
+                    remember = "remember" in request.form
+                    login_user(user, remember=remember)
+                    return redirect(next_path)
             else:
                 flash("Wrong email or password.")
         except NoResultFound:
