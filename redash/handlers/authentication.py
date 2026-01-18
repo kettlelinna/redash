@@ -275,7 +275,10 @@ def login(org_slug=None):
                     login_user(user, remember=remember)
                     return redirect(next_path)
             else:
-                flash("Wrong email or password.")
+                if user and user.is_disabled:
+                    flash("User is unavailable.")
+                else:
+                    flash("Wrong email or password.")
         except NoResultFound:
             flash("Wrong email or password.")
     elif request.method == "POST" and not current_org.get_setting("auth_password_login_enabled"):
