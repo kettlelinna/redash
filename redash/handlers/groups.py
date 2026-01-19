@@ -13,9 +13,7 @@ class GroupListResource(BaseResource):
 
         groups = models.Group.find_by_name(self.current_org, [name.lower()])
         if len(groups) != 0:
-            error_message = "group have existed."
-            status_code = 500
-            return json_response({"message": error_message, "status_code": status_code})
+            abort(500, message="group have existed.")
         else:
             group = models.Group(name=name, org=self.current_org)
             models.db.session.add(group)
