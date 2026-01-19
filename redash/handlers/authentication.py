@@ -137,8 +137,8 @@ def query_user():
     if status_code != 200:
         return json_response({"message": error_message, "status_code": status_code})
     else:
-        user = user.to_dict()
         api_key = user.api_key
+        user = user.to_dict()
         user['status_code'] = status_code
         user['api_key'] = api_key
         return user
