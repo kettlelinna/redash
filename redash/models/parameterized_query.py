@@ -124,8 +124,10 @@ class ParameterizedQuery:
 
     def apply(self, parameters):
         invalid_parameter_names = [key for (key, value) in parameters.items() if not self._valid(key, value)]
-        invalid_parameter_names.remove('email')
-        invalid_parameter_names.remove('group_ids')
+        if 'email' in invalid_parameter_names:
+            invalid_parameter_names.remove('email')
+        if 'group_ids' in invalid_parameter_names:
+            invalid_parameter_names.remove('group_ids')
         if invalid_parameter_names:
             raise InvalidParameterError(invalid_parameter_names)
         else:
