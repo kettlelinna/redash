@@ -196,6 +196,16 @@ class DashboardResource(BaseResource):
 
         self.record_event({"action": "view", "object_id": dashboard.id, "object_type": "dashboard"})
 
+        widgets = response["widgets"]
+        for widget in widgets:
+            parameter_mappings = widget["options"]["parameterMappings"]
+            if "email" in parameter_mappings:
+                del parameter_mappings["email"]
+            if "device_ids" in parameter_mappings:
+                del parameter_mappings["device_ids"]
+            widget["options"]["parameterMappings"] = parameter_mappings
+        response["widgets"] = widgets
+
         return response
 
     @require_permission("edit_dashboard")
