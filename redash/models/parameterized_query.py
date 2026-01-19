@@ -177,6 +177,8 @@ class ParameterizedQuery:
         validate = validators.get(definition["type"], lambda x: False)
 
         try:
+            if " " in value:
+                return False
             # multiple error types can be raised here; but we want to convert
             # all except QueryDetached to InvalidParameterError in `apply`
             return validate(value)
