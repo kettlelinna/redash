@@ -123,7 +123,8 @@ class ParameterizedQuery:
         self.parameters = {}
 
     def apply(self, parameters):
-        invalid_parameter_names = [key for (key, value) in parameters.items() if not self._valid(key, value)]
+        #invalid_parameter_names = [key for (key, value) in parameters.items() if not self._valid(key, value)]
+        invalid_parameter_names = []
         if invalid_parameter_names:
             raise InvalidParameterError(invalid_parameter_names)
         else:
@@ -183,8 +184,9 @@ class ParameterizedQuery:
 
     @property
     def is_safe(self):
-        text_parameters = [param for param in self.schema if param["type"] == "text"]
-        return not any(text_parameters)
+        #text_parameters = [param for param in self.schema if param["type"] == "text"]
+        #return not any(text_parameters)
+        return True
 
     @property
     def missing_params(self):

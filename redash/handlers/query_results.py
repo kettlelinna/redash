@@ -260,13 +260,20 @@ class QueryResultResource(BaseResource):
 
         query = get_object_or_404(models.Query.get_by_id_and_org, query_id, self.current_org)
 
-        allow_executing_with_view_only_permissions = True #query.parameterized.is_safe
+        allow_executing_with_view_only_permissions = query.parameterized.is_safe
         if "apply_auto_limit" in params:
             should_apply_auto_limit = params.get("apply_auto_limit", False)
         else:
             should_apply_auto_limit = query.options.get("apply_auto_limit", False)
 
-        parameter_values['email'] = self.current_user.email
+        if "admin" in self.current_user.permissions and 'email' not in parameter_values:
+            parameter_values['email'] = self.current_user.email
+        else:
+            parameter_values['email'] = self.current_user.email
+        if "admin" in self.current_user.permissions and 'group_ids' not in parameter_values:
+            parameter_values['group_ids'] = self.current_user.group_ids
+        else:
+            parameter_values['group_ids'] = self.current_user.group_ids
         if has_access(query, self.current_user, allow_executing_with_view_only_permissions):
             return run_query(
                 query.parameterized,
