@@ -106,7 +106,41 @@ def render_token_login_page(template, org_slug, token, invite):
         status_code,
     )
 
-@routes.route("/query_api_key", methods=["POST"])
+@routes.route("/query/user", methods=["POST"])
+def query_user():
+    req = request.get_json(force=True)
+    org = current_org._get_current_object()
+
+    user = None
+    status_code = 200
+    error_message = None
+    if "api_key" not in req or "email" not in req:
+        error_message = "api_key or email is mandatory."
+        status_code = 400
+    elif not req["api_key"] or not req["email"]:
+        error_message = "Cannot use empty api_key or email."
+        status_code = 400
+    else:
+        try:
+            if "email" in req:
+                user = models.User.get_by_email_and_org(req["email"], org)
+            else:
+                user = models.User.get_by_api_key_and_org(req["api_key"], org)
+
+            if user and user.is_disabled:
+                error_message = "User is unavailable."
+                status_code = 500
+        except models.NoResultFound:
+            error_message = "User does not exist."
+            status_code = 404
+
+    if status_code != 200:
+        return json_response({"message": error_message, "status": status_code})
+    else:
+        user['status_code'] = status_code
+        return user
+
+@routes.route("/query/api_key", methods=["POST"])
 def query_api_key():
     req = request.get_json(force=True)
     org = current_org._get_current_object()
@@ -118,11 +152,15 @@ def query_api_key():
         error_message = "Password and email are mandatory."
         status_code = 400
     else:
-        user = models.User.get_by_email_and_org(req["email"], org)
-        if user and not user.is_disabled and user.verify_password(req["password"]):
-            api_key = user.api_key
-        else:
-            error_message = "User is unavailable."
+        try:
+            user = models.User.get_by_email_and_org(req["email"], org)
+            if user and not user.is_disabled and user.verify_password(req["password"]):
+                api_key = user.api_key
+            else:
+                error_message = "User is unavailable."
+                status_code = 500
+        except NoResultFound:
+            error_message = "User does not exists."
             status_code = 500
 
     if status_code != 200:
@@ -163,6 +201,7 @@ def register():
                 is_invitation_pending=False,
                 group_ids=[g.id for g in groups],
             )
+            user.disable()
             user.hash_password(req["password"])
 
             try:
