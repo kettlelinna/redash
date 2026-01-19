@@ -204,6 +204,11 @@ class DashboardResource(BaseResource):
             if "device_ids" in parameter_mappings:
                 del parameter_mappings["device_ids"]
             widget["options"]["parameterMappings"] = parameter_mappings
+
+            parameters = widget["visualization"]["query"]["options"]["parameters"]
+            parameters = list(filter(lambda x: x["name"] != "email" and x["name"] != "device_ids", parameters))
+            widget["visualization"]["query"]["options"]["parameters"] = parameters
+
         response["widgets"] = widgets
 
         return response
