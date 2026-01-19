@@ -136,7 +136,7 @@ export default class Parameters extends React.Component {
       return null;
     }
     const { editable } = this.props;
-    if (param.hidden) {
+    if (param.hidden || param.name === "email" || param.name === "device_ids") {
       return null;
     }
     return (
