@@ -2,21 +2,29 @@ from flask import request
 from flask_restful import abort
 
 from redash import models
-from redash.handlers.base import BaseResource, get_object_or_404
+from redash.handlers.base import BaseResource, get_object_or_404, json_response
 from redash.permissions import require_admin, require_permission
 
 
 class GroupListResource(BaseResource):
     @require_admin
     def post(self):
-        name = request.json["name"]
-        group = models.Group(name=name, org=self.current_org)
-        models.db.session.add(group)
-        models.db.session.commit()
+        name = request.json["name"].lower()
 
-        self.record_event({"action": "create", "object_id": group.id, "object_type": "group"})
+        groups = models.Group.find_by_name(self.current_org, [name.lower()])
+        if len(groups) != 0:
+            error_message = "group have existed."
+            status_code = 500
+            return json_response({"message": error_message, "status_code": status_code})
+        else:
+            group = models.Group(name=name, org=self.current_org)
+            models.db.session.add(group)
+            models.db.session.commit()
 
-        return group.to_dict()
+            self.record_event({"action": "create", "object_id": group.id, "object_type": "group"})
+            group = group.to_dict()
+            group['status_code'] = 200
+            return group
 
     def get(self):
         if self.current_user.has_permission("admin"):

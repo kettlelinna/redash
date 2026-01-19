@@ -135,7 +135,7 @@ def query_user():
             status_code = 404
 
     if status_code != 200:
-        return json_response({"message": error_message, "status": status_code})
+        return json_response({"message": error_message, "status_code": status_code})
     else:
         user['status_code'] = status_code
         return user
@@ -164,9 +164,9 @@ def query_api_key():
             status_code = 500
 
     if status_code != 200:
-        return json_response({"message": error_message, "status": status_code})
+        return json_response({"message": error_message, "status_code": status_code})
     else:
-        return json_response({"api_key": api_key, "status": status_code})
+        return json_response({"api_key": api_key, "status_code": status_code})
 
 @routes.route("/register", methods=["POST"])
 def register():
@@ -215,7 +215,7 @@ def register():
                 error_message = str(e)
                 status_code = 500
     message = "Register successful." if status_code == 200 else error_message
-    return json_response({"message": message, "status": status_code})
+    return json_response({"message": message, "status_code": status_code})
 
 
 @routes.route(org_scoped_rule("/invite/<token>"), methods=["GET", "POST"])
