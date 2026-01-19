@@ -114,7 +114,7 @@ def query_user():
     user = None
     status_code = 200
     error_message = None
-    if "api_key" not in req or "email" not in req:
+    if "api_key" not in req and "email" not in req:
         error_message = "api_key or email is mandatory."
         status_code = 400
     elif not req["api_key"] or not req["email"]:
