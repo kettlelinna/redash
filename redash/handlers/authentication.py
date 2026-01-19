@@ -117,7 +117,7 @@ def query_user():
     if "api_key" not in req and "email" not in req:
         error_message = "api_key or email is mandatory."
         status_code = 400
-    elif not req["api_key"] or not req["email"]:
+    elif ("api_key" in req and not req["api_key"]) or ("email" in req and not req["email"]):
         error_message = "Cannot use empty api_key or email."
         status_code = 400
     else:
@@ -149,7 +149,7 @@ def query_api_key():
     status_code = 200
     api_key = None
     error_message = None
-    if ("password" not in req or "email" not in req) or (not req["password"] or not req["email"]):
+    if ("password" not in req or "email" not in req) or (("password" in req and not req["password"]) or ("email" in req and not req["email"])):
         error_message = "Password and email are mandatory."
         status_code = 400
     else:
