@@ -136,7 +136,7 @@ export default class Parameters extends React.Component {
       return null;
     }
     const { editable } = this.props;
-    if (param.hidden || param.name === "email" || param.name === "device_ids") {
+    if (param.hidden) {
       return null;
     }
     return (
@@ -189,7 +189,7 @@ export default class Parameters extends React.Component {
         }}
       >
         {parameters &&
-          parameters.map((param, index) => (
+          parameters.filter((p) => p.name !== "email" && p.name !== "device_ids").map((param, index) => (
             <SortableElement key={param.name} index={index}>
               <div
                 className="parameter-block"

@@ -335,6 +335,7 @@ class Parameters {
     const params = Object.assign(...this.get().map(p => p.toUrlParams()));
     Object.keys(params).forEach(key => params[key] == null && delete params[key]);
     return Object.keys(params)
+      .filter(p => p !== "email" && p !== "device_ids")
       .map(k => `${encodeURIComponent(k)}=${encodeURIComponent(params[k])}`)
       .join("&");
   }
