@@ -391,7 +391,7 @@ class QueryResource(BaseResource):
         self.record_event({"action": "view", "object_id": query_id, "object_type": "query"})
         options = result["options"]
         parameters = options["parameters"]
-        parameters = list(filter(lambda x: x["name"] != "email" and x["name"] != "device_id", parameters))
+        parameters = list(filter(lambda x: x["name"] != "email" and x["name"] != "device_ids", parameters))
         options["parameters"] = parameters
         result["options"] = options
         return result
