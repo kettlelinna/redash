@@ -266,15 +266,15 @@ class QueryResultResource(BaseResource):
         else:
             should_apply_auto_limit = query.options.get("apply_auto_limit", False)
 
-        if "admin" in self.current_user.permissions and 'email' not in parameter_values:
-            parameter_values['email'] = self.current_user.email
+        if "admin" in self.current_user.permissions and 'email' in parameter_values:
+            pass
         else:
             parameter_values['email'] = self.current_user.email
 
         group_names = [g.name for g in models.Group.query.filter(models.Group.id.in_(self.current_user.group_ids))]
         device_ids = ','.join(list(map(lambda x: f"'{x}'", filter(lambda x: x.startswith("device_"), group_names))))
-        if "admin" in self.current_user.permissions and 'device_ids' not in parameter_values:
-            parameter_values['device_ids'] = device_ids
+        if "admin" in self.current_user.permissions and 'device_ids' in parameter_values:
+            pass
         else:
             parameter_values['device_ids'] = device_ids
         if has_access(query, self.current_user, allow_executing_with_view_only_permissions):
