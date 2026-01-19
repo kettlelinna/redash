@@ -189,7 +189,7 @@ export default class Parameters extends React.Component {
         }}
       >
         {parameters &&
-          parameters.filter((p) => p.name !== "email" && p.name !== "device_ids").map((param, index) => (
+          parameters.map((param, index) => (
             <SortableElement key={param.name} index={index}>
               <div
                 className="parameter-block"

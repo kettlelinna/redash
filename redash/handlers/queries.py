@@ -389,7 +389,11 @@ class QueryResource(BaseResource):
         result["can_edit"] = can_modify(q, self.current_user)
 
         self.record_event({"action": "view", "object_id": query_id, "object_type": "query"})
-
+        options = result["options"]
+        parameters = options["parameters"]
+        parameters = list(filter(lambda x: x["name"] != "email" and x["name"] != "device_id", parameters))
+        options["parameters"] = parameters
+        result["options"] = options
         return result
 
     # TODO: move to resource of its own? (POST /queries/{id}/archive)
