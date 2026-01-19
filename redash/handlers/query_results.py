@@ -270,10 +270,13 @@ class QueryResultResource(BaseResource):
             parameter_values['email'] = self.current_user.email
         else:
             parameter_values['email'] = self.current_user.email
-        if "admin" in self.current_user.permissions and 'group_ids' not in parameter_values:
-            parameter_values['group_ids'] = self.current_user.group_ids
+
+        group_names = [g.name for g in models.Group.query.filter(models.Group.id.in_(self.current_user.group_ids))]
+        device_ids = ','.join(list(map(lambda x: f"'{x}'", filter(lambda x: x.startswith("device_"), group_names))))
+        if "admin" in self.current_user.permissions and 'device_ids' not in parameter_values:
+            parameter_values['device_ids'] = device_ids
         else:
-            parameter_values['group_ids'] = self.current_user.group_ids
+            parameter_values['device_ids'] = device_ids
         if has_access(query, self.current_user, allow_executing_with_view_only_permissions):
             return run_query(
                 query.parameterized,
