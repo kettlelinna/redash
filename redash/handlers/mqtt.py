@@ -22,6 +22,9 @@ class MQTT(BaseResource):
     def connect(self):
         self.client.connect(self.mqtt_server, self.mqtt_port, keepalive=60)
 
+    def disconnect(self):
+        self.client.disconnect()
+
     def publish(self, topic, message, qos=1):
         msg_info = self.client.publish(topic, message, qos=qos)
         msg_info.wait_for_publish()
@@ -31,18 +34,20 @@ class MQTT(BaseResource):
     def post(self):
         req = request.get_json(force=True)
         if "topic" not in req:
+            self.disconnect()
             abort(400, message="Parameter topic is mandatory.")
         elif "message" not in req:
+            self.disconnect()
             abort(400, message="Parameter message is mandatory.")
 
         if not self.client.is_connected():
-            self.connect()
-            if not self.client.is_connected():
-                abort(500, message="Connect mqtt failed.")
+            abort(500, message="Connect mqtt failed.")
 
         topic = req["topic"]
         message = req["message"]
         is_published = self.publish(topic, message)
+
+        self.disconnect()
 
         if is_published:
             return {"status_code": "200"}
