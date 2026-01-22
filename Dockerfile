@@ -79,5 +79,7 @@ COPY --from=frontend-builder --chown=redash /frontend/client/dist /app/client/di
 RUN chown redash /app
 USER redash
 
+RUN pip install paho-mqtt
+
 ENTRYPOINT ["/app/bin/docker-entrypoint"]
 CMD ["server"]
