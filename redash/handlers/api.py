@@ -40,6 +40,7 @@ from redash.handlers.destinations import (
     DestinationTypeListResource,
 )
 from redash.handlers.events import EventsResource
+from redash.handlers.mqtt import MQTT
 from redash.handlers.favorites import (
     DashboardFavoriteResource,
     QueryFavoriteResource,
@@ -285,3 +286,4 @@ api.add_org_resource(QuerySnippetResource, "/api/query_snippets/<snippet_id>", e
 api.add_org_resource(QuerySnippetListResource, "/api/query_snippets", endpoint="query_snippets")
 
 api.add_org_resource(OrganizationSettings, "/api/settings/organization", endpoint="organization_settings")
+api.add_org_resource(MQTT, "/send/command/mqtt", endpoint="send_mqtt")
