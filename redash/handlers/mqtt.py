@@ -16,6 +16,7 @@ class MQTT(BaseResource):
         self.client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
         self.username = self.current_user.email
         self.password = self.current_user.api_key
+        self.connect()
 
     def connect(self):
         self.client.username_pw_set(self.username, self.password)
@@ -40,9 +41,8 @@ class MQTT(BaseResource):
             self.disconnect()
             abort(400, message="Parameter message is mandatory.")
 
-        self.connect()
         if not self.client.is_connected():
-            abort(500, message="Connect mqtt failed.")
+            abort(500, message=f"Connect mqtt failed.{self.username}|{self.password}.")
 
         topic = req["topic"]
         message = req["message"]
