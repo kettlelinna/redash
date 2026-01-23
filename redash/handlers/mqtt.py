@@ -14,12 +14,10 @@ class MQTT(BaseResource):
         self.mqtt_server = "emqx-headless.emqx.svc.cluster.local"
         self.mqtt_port = 1883
         self.client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
-        self.username = self.current_user.email
-        self.password = self.current_user.api_key
         self.connect()
 
     def connect(self):
-        self.client.username_pw_set(self.username, self.password)
+        self.client.username_pw_set(self.current_user.email, self.current_user.api_key)
         self.client.connect(self.mqtt_server, self.mqtt_port, keepalive=60)
         self.client.loop_start()
 
@@ -42,7 +40,7 @@ class MQTT(BaseResource):
             abort(400, message="Parameter message is mandatory.")
 
         if not self.client.is_connected():
-            abort(500, message=f"Connect mqtt failed.{self.username}|{self.password}.")
+            abort(500, message="Connect mqtt failed.")
 
         topic = req["topic"]
         message = req["message"]
@@ -51,7 +49,17 @@ class MQTT(BaseResource):
         self.disconnect()
 
         if is_published:
-            return {"status_code": "200", "username": self.username, "password": self.password}
+            self.record_event(
+                {
+                    "action": "sent",
+                    "object_type": "mqtt",
+                    "params": {
+                        "topic": topic,
+                        "message": message
+                    },
+                }
+            )
+            return {"status_code": "200"}
         else:
-            return {"status_code": "500", "username": self.username, "password": self.password}
+            return {"status_code": "500"}
 
