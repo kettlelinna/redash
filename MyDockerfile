@@ -28,6 +28,7 @@ RUN yarn --frozen-lockfile --network-concurrency 1
 
 COPY --chown=redash client /frontend/client
 COPY --chown=redash webpack.config.js /frontend/
+RUN yarn add weixin-js-sdk
 RUN yarn build
 #RUN <<EOF
 #  if [ "x$skip_frontend_build" = "x" ]; then
