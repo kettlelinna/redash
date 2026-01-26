@@ -1,6 +1,7 @@
 import { isEmpty } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
+import wx from "weixin-js-sdk";
 
 import routeWithApiKeySession from "@/components/ApplicationArea/routeWithApiKeySession";
 import Link from "@/components/Link";
