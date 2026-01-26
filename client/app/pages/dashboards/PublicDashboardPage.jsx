@@ -18,6 +18,7 @@ import logoUrl from "@/assets/images/redash_icon_small.png";
 import useDashboard from "./hooks/useDashboard";
 
 import "./PublicDashboardPage.less";
+import location from "@/services/location";
 
 function PublicDashboard({ dashboard }) {
   const { globalParameters, filters, setFilters, refreshDashboard, loadWidget, refreshWidget } = useDashboard(
@@ -106,6 +107,6 @@ routes.register(
   routeWithApiKeySession({
     path: "/public/dashboards/:token",
     render: pageProps => <PublicDashboardPage {...pageProps} />,
-    getApiKey: currentRoute => currentRoute.routeParams.token,
+    getApiKey: () => location.search.api_key,
   })
 );
