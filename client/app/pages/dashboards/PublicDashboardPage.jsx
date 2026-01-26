@@ -78,6 +78,10 @@ class PublicDashboardPage extends React.Component {
       .catch(error => this.props.onError(error));
   }
 
+  onClickBackMiniProgram = () => {
+    wx.miniProgram.redirectTo({url: '/pages/newindex/newindex'});
+  };
+
   render() {
     const { loading, dashboard } = this.state;
     return (
@@ -89,6 +93,11 @@ class PublicDashboardPage extends React.Component {
         ) : (
           <PublicDashboard dashboard={dashboard} />
         )}
+        <div id="footer">
+          <div className="text-center">
+            <Button type="primary" className="w-100" onClick={this.onClickBackMiniProgram}>Back</Button>
+          </div>
+        </div>
       </div>
     );
   }
