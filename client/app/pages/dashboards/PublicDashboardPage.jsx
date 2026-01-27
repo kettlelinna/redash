@@ -81,7 +81,8 @@ class PublicDashboardPage extends React.Component {
   }
 
   onClickBack = () => {
-   wx.miniProgram.redirectTo({url: '/pages/newindex/newindex'});
+    wx.miniProgram.navigateTo({url: '/pages/newindex/newindex'});
+    //wx.miniProgram.redirectTo({url: '/pages/newindex/newindex'});
   }
 
   render() {
