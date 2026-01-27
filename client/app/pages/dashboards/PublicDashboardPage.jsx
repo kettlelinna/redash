@@ -1,11 +1,8 @@
 import { isEmpty } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
-import wx from "weixin-js-sdk";
-import Button from "antd/lib/button";
 
 import routeWithApiKeySession from "@/components/ApplicationArea/routeWithApiKeySession";
-import Link from "@/components/Link";
 import BigMessage from "@/components/BigMessage";
 import PageHeader from "@/components/PageHeader";
 import Parameters from "@/components/Parameters";
@@ -14,8 +11,6 @@ import Filters from "@/components/Filters";
 
 import { Dashboard } from "@/services/dashboard";
 import routes from "@/services/routes";
-
-import logoUrl from "@/assets/images/redash_icon_small.png";
 
 import useDashboard from "./hooks/useDashboard";
 
@@ -80,11 +75,6 @@ class PublicDashboardPage extends React.Component {
       .catch(error => this.props.onError(error));
   }
 
-  onClickBack = () => {
-    wx.miniProgram.navigateTo({url: '/pages/newindex/newindex'});
-    //wx.miniProgram.redirectTo({url: '/pages/newindex/newindex'});
-  }
-
   render() {
     const { loading, dashboard } = this.state;
     return (
@@ -96,11 +86,6 @@ class PublicDashboardPage extends React.Component {
         ) : (
           <PublicDashboard dashboard={dashboard} />
         )}
-        <div id="footer">
-          <div className="text-center">
-            <Button type="primary" className="w-100" onClick={this.onClickBack}>Back</Button>
-          </div>
-        </div>
       </div>
     );
   }
