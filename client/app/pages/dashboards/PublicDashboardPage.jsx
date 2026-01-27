@@ -82,7 +82,15 @@ class PublicDashboardPage extends React.Component {
 
   onClickBack = () => {
     console.log("=============1");
-    wx.miniProgram.redirectTo({url: '/pages/newindex/newindex'});
+    wx.miniProgram.redirectTo({
+      url: '/pages/newindex/newindex',
+      success: function() {
+	      console.log('success');
+      },
+      fail: function(err) {
+        console.error('跳转失败', err);
+      }
+    });
     console.log("=============2");
   }
 
