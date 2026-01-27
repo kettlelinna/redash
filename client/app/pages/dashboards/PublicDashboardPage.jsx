@@ -74,12 +74,6 @@ class PublicDashboardPage extends React.Component {
     dashboard: null,
   };
 
-  componentDidMount() {
-    Dashboard.getByToken({ token: this.props.token })
-      .then(dashboard => this.setState({ dashboard, loading: false }))
-      .catch(error => this.props.onError(error));
-  }
-
   onClickBack = () => {
     console.log("=============1");
     wx.miniProgram.redirectTo({
@@ -92,6 +86,12 @@ class PublicDashboardPage extends React.Component {
       }
     });
     console.log("=============2");
+  };
+
+  componentDidMount() {
+    Dashboard.getByToken({ token: this.props.token })
+      .then(dashboard => this.setState({ dashboard, loading: false }))
+      .catch(error => this.props.onError(error));
   }
 
   render() {
