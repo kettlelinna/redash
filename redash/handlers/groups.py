@@ -11,6 +11,9 @@ class GroupListResource(BaseResource):
     def post(self):
         name = request.json["name"].lower()
 
+        if not name.startswith("device_"):
+            abort(500, message="group must start with 'device_'.")
+
         groups = models.Group.find_by_name(self.current_org, [name.lower()])
         if len(groups) != 0:
             abort(500, message="group have existed.")
@@ -78,9 +81,15 @@ class GroupResource(BaseResource):
 class GroupMemberListResource(BaseResource):
     @require_admin
     def post(self, group_id):
+        group = models.Group.get_by_id_and_org(group_id, self.current_org)
+        if group.name.startswith("device_"):
+            members = models.Group.members(group_id)
+            if len(members) >= 1:
+                abort(500, message="This group already have member.")
+
         user_id = request.json["user_id"]
         user = models.User.get_by_id_and_org(user_id, self.current_org)
-        group = models.Group.get_by_id_and_org(group_id, self.current_org)
+
         user.group_ids.append(group.id)
         models.db.session.commit()
 
