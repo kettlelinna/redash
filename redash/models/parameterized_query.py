@@ -123,11 +123,14 @@ class ParameterizedQuery:
         self.parameters = {}
 
     def apply(self, parameters):
-        invalid_parameter_names = [key for (key, value) in parameters.items() if not self._valid(key, value)]
+        is_admin = parameters['is_admin'] if 'is_admin' in parameters else False
+        invalid_parameter_names = [key for (key, value) in parameters.items() if not self._valid(key, value, is_admin)]
         if 'email' in invalid_parameter_names:
             invalid_parameter_names.remove('email')
         if 'device_ids' in invalid_parameter_names:
             invalid_parameter_names.remove('device_ids')
+        if 'is_admin' in invalid_parameter_names:
+            invalid_parameter_names.remove('is_admin')
         if invalid_parameter_names:
             raise InvalidParameterError(invalid_parameter_names)
         else:
@@ -136,7 +139,7 @@ class ParameterizedQuery:
 
         return self
 
-    def _valid(self, name, value):
+    def _valid(self, name, value, is_admin=False):
         if not self.schema:
             return True
 
@@ -177,7 +180,7 @@ class ParameterizedQuery:
         validate = validators.get(definition["type"], lambda x: False)
 
         try:
-            if " " in value:
+            if not is_admin and " " in value:
                 return False
             # multiple error types can be raised here; but we want to convert
             # all except QueryDetached to InvalidParameterError in `apply`
