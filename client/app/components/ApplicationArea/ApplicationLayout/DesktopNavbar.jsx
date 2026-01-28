@@ -147,12 +147,6 @@ export default function DesktopNavbar() {
       </NavbarSection>
 
       <NavbarSection>
-        <Menu.Item key="help">
-          <HelpTrigger showTooltip={false} type="HOME" tabIndex={0}>
-            <QuestionCircleOutlinedIcon />
-            <span className="desktop-navbar-label">Help</span>
-          </HelpTrigger>
-        </Menu.Item>
         {firstSettingsTab && (
           <Menu.Item key="settings" className={activeState.dataSources ? "navbar-active-item" : null}>
             <Link href={firstSettingsTab.path} data-test="SettingsLink">
