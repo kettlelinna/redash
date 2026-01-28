@@ -309,13 +309,9 @@ def login(org_slug=None):
             org = current_org._get_current_object()
             user = models.User.get_by_email_and_org(request.form["email"], org)
             if user and not user.is_disabled and user.verify_password(request.form["password"]):
-                admin_group = org.admin_group
-                if admin_group.id not in user.group_ids:
-                    flash("User is not been allow login.")
-                else:
-                    remember = "remember" in request.form
-                    login_user(user, remember=remember)
-                    return redirect(next_path)
+                remember = "remember" in request.form
+                login_user(user, remember=remember)
+                return redirect(next_path)
             else:
                 if user and user.is_disabled:
                     flash("User is unavailable.")
