@@ -245,18 +245,18 @@ class User(TimestampMixin, db.Model, BelongsToOrgMixin, UserMixin, PermissionsCh
 @generic_repr("id", "name", "type", "org_id")
 class Group(db.Model, BelongsToOrgMixin):
     DEFAULT_PERMISSIONS = [
-        "create_dashboard",
-        "create_query",
-        "edit_dashboard",
-        "edit_query",
+        #"create_dashboard",
+        #"create_query",
+        #"edit_dashboard",
+        #"edit_query",
         "view_query",
         "view_source",
         "execute_query",
-        "list_users",
-        "schedule_query",
+        #"list_users",
+        #"schedule_query",
         "list_dashboards",
-        "list_alerts",
-        "list_data_sources",
+        #"list_alerts",
+        #"list_data_sources",
     ]
     ADMIN_PERMISSIONS = ["admin", "super_admin"]
 
