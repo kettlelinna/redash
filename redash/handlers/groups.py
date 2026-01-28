@@ -84,7 +84,7 @@ class GroupMemberListResource(BaseResource):
         group = models.Group.get_by_id_and_org(group_id, self.current_org)
         if group.name.startswith("device_"):
             members = models.Group.members(group_id)
-            if len(members) >= 1:
+            if len([m.to_dict() for m in members]) >= 1:
                 abort(500, message="This group already have member.")
 
         user_id = request.json["user_id"]
