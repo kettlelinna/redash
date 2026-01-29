@@ -289,7 +289,7 @@ class Parameters {
   }
 
   isParameterized() {
-    this.query.query.includes("{{")
+    return this.query.query.includes("{{")
   }
 
   get(update = true) {
