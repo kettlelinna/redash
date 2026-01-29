@@ -64,6 +64,19 @@ def public_dashboard(dashboard):
     dashboard_dict["widgets"] = [public_widget(w) for w in widget_list]
     return dashboard_dict
 
+def hiddenParameters(widgets):
+    for widget in widgets:
+        parameter_mappings = widget["options"]["parameterMappings"]
+        if "email" in parameter_mappings:
+            del parameter_mappings["email"]
+        if "device_ids" in parameter_mappings:
+            del parameter_mappings["device_ids"]
+        widget["options"]["parameterMappings"] = parameter_mappings
+
+        parameters = widget["visualization"]["query"]["options"]["parameters"]
+        parameters = list(filter(lambda x: x["name"] != "email" and x["name"] != "device_ids", parameters))
+        widget["visualization"]["query"]["options"]["parameters"] = parameters
+    return widgets
 
 class Serializer:
     pass

@@ -18,7 +18,7 @@ from redash.permissions import (
     require_permission,
 )
 from redash.security import csp_allows_embeding
-from redash.serializers import DashboardSerializer, public_dashboard
+from redash.serializers import DashboardSerializer, public_dashboard, hiddenParameters
 
 # Ordering map for relationships
 order_map = {
@@ -196,20 +196,7 @@ class DashboardResource(BaseResource):
 
         self.record_event({"action": "view", "object_id": dashboard.id, "object_type": "dashboard"})
 
-        widgets = response["widgets"]
-        for widget in widgets:
-            parameter_mappings = widget["options"]["parameterMappings"]
-            if "email" in parameter_mappings:
-                del parameter_mappings["email"]
-            if "device_ids" in parameter_mappings:
-                del parameter_mappings["device_ids"]
-            widget["options"]["parameterMappings"] = parameter_mappings
-
-            parameters = widget["visualization"]["query"]["options"]["parameters"]
-            parameters = list(filter(lambda x: x["name"] != "email" and x["name"] != "device_ids", parameters))
-            widget["visualization"]["query"]["options"]["parameters"] = parameters
-
-        response["widgets"] = widgets
+        hiddenParameters(response["widgets"])
 
         return response
 
@@ -306,7 +293,10 @@ class PublicDashboardResource(BaseResource):
         else:
             dashboard = self.current_user.object
 
-        return public_dashboard(dashboard)
+        dashboard = public_dashboard(dashboard)
+        if "widgets" in dashboard:
+            hiddenParameters(dashboard["widgets"])
+        return dashboard
 
 
 class DashboardShareResource(BaseResource):
