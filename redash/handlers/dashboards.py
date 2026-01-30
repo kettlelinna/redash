@@ -294,8 +294,8 @@ class PublicDashboardResource(BaseResource):
             dashboard = self.current_user.object
 
         dashboard = public_dashboard(dashboard)
-        if "widgets" in dashboard:
-            hiddenParameters(dashboard["widgets"])
+        #if "widgets" in dashboard:
+        #    hiddenParameters(dashboard["widgets"])
         return dashboard
 
 
