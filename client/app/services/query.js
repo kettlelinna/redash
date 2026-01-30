@@ -108,7 +108,7 @@ export class Query {
       });
     }
 
-    if (parameters.isRequired() || parameters.isParameterized()) {
+    if (parameters.isRequired()) {
       // Need to clear latest results, to make sure we don't use results for different params.
       this.latest_query_data = null;
       this.latest_query_data_id = null;
