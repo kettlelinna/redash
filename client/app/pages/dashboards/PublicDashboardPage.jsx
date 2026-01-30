@@ -100,6 +100,6 @@ routes.register(
   routeWithApiKeySession({
     path: "/public/dashboards/:token",
     render: pageProps => <PublicDashboardPage {...pageProps} />,
-    getApiKey: () => location.search.api_key,
+    getApiKey: currentRoute => currentRoute.routeParams.token,
   })
 );
