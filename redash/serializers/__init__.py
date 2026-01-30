@@ -76,7 +76,7 @@ def hiddenParameters(widgets):
         parameters = widget["visualization"]["query"]["options"]["parameters"]
         parameters = list(filter(lambda x: x["name"] != "email" and x["name"] != "device_ids", parameters))
         widget["visualization"]["query"]["options"]["parameters"] = parameters
-    return widgets
+
 
 class Serializer:
     pass

@@ -1,7 +1,6 @@
 import { isEmpty } from "lodash";
 import React from "react";
 import PropTypes from "prop-types";
-import wx from "weixin-js-sdk";
 import Button from "antd/lib/button";
 
 import routeWithApiKeySession from "@/components/ApplicationArea/routeWithApiKeySession";
@@ -74,20 +73,6 @@ class PublicDashboardPage extends React.Component {
     dashboard: null,
   };
 
-  onClickBack = () => {
-    console.log("=============1");
-    wx.miniProgram.redirectTo({
-      url: '/pages/newindex/newindex',
-      success: function() {
-	      console.log('success');
-      },
-      fail: function(err) {
-        console.error('跳转失败', err);
-      }
-    });
-    console.log("=============2");
-  };
-
   componentDidMount() {
     Dashboard.getByToken({ token: this.props.token })
       .then(dashboard => this.setState({ dashboard, loading: false }))
@@ -105,11 +90,6 @@ class PublicDashboardPage extends React.Component {
         ) : (
           <PublicDashboard dashboard={dashboard} />
         )}
-        <div id="footer">
-          <div className="text-center">
-            <Button type="primary" className="w-100" onClick={this.onClickBack}>Back</Button>
-          </div>
-        </div>
       </div>
     );
   }
