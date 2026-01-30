@@ -108,7 +108,7 @@ export class Query {
       });
     }
 
-    if (parameters.isRequired()) {
+    if (parameters.isRequired() || parameters.isParameterized()) {
       // Need to clear latest results, to make sure we don't use results for different params.
       this.latest_query_data = null;
       this.latest_query_data_id = null;
@@ -289,7 +289,11 @@ class Parameters {
   }
 
   isParameterized() {
-    return this.query.query.includes("{{")
+    if (Object.keys(this.query).includes('query')) {
+      return this.query.query.includes("{{")
+    } else {
+      return false
+    }
   }
 
   get(update = true) {
