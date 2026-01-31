@@ -91,6 +91,8 @@ def refresh_queries():
 
         try:
             query_text = _apply_default_parameters(query)
+            if "{{" in query_text:
+                continue
             query_text = _apply_auto_limit(query_text, query)
             enqueue_query(
                 query_text,
