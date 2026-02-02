@@ -131,7 +131,7 @@ const SchedulesListPage = wrapSettingsTab(
     permission: "admin",
     title: "Schedules",
     path: "schedules",
-    order: 3,
+    order: 8,
   },
   itemsList(
     SchedulesList,
