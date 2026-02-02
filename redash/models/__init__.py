@@ -1537,7 +1537,7 @@ class Schedule(TimestampMixin, db.Model, BelongsToOrgMixin):
 
     @classmethod
     def find_by_name(cls, org, schedule_names):
-        result = cls.query.filter(cls.org == org, cls.name.in_(group_names))
+        result = cls.query.filter(cls.org == org, cls.name.in_(schedule_names))
         return list(result)
 
     @classmethod
@@ -1552,7 +1552,6 @@ class Schedule(TimestampMixin, db.Model, BelongsToOrgMixin):
 
         for schedule in schedules:
             try:
-
                 if schedule.schedule.get("disabled"):
                     continue
 
