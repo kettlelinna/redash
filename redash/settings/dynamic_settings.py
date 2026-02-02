@@ -1,5 +1,5 @@
 from collections import defaultdict
-from time import timedelta
+from datetime import timedelta
 
 from redash.worker import get_job_logger
 
