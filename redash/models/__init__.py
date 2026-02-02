@@ -1525,7 +1525,7 @@ class Schedule(TimestampMixin, db.Model, BelongsToOrgMixin):
     name = Column(db.String(255))
     description = Column(db.String(4096), nullable=True)
     schedule = Column(MutableDict.as_mutable(JSONB), nullable=False)
-    interval = json_cast_property(db.Integer, "schedule", "interval", default=3)
+    interval = json_cast_property(db.Integer, "schedule", "interval", default=0)
     objective = Column(db.String(255))
     args = Column(MutableDict.as_mutable(JSONB), nullable=True, default={})
 
