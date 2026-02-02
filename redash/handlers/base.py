@@ -68,7 +68,7 @@ def require_fields(req, fields):
             missing_fields.append(f)
 
     if len(missing_fields) > 0:
-        message = "Missing %s in request!" % ",".join(missing_fields)
+        message = "Missing %s in %s!" % (",".join(missing_fields), req)
         abort(400, message=message)
 
 

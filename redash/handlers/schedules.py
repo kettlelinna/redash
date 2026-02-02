@@ -2,15 +2,15 @@ from flask import request
 from flask_restful import abort
 
 from redash import models
-from redash.handlers.base import BaseResource, get_object_or_404, require_fields
-from redash.permissions import require_admin, require_permission
+from redash.handlers.base import BaseResource, require_fields
+from redash.permissions import require_admin
 
 
 class ScheduleListResource(BaseResource):
 
     def check_mqtt_params(self, req):
         require_fields(req["payload"], ("interval", "args"))
-        require_fields(req["payload"]["args"], ("topic", "message"))
+        require_fields(req["payload"]["args"], ("topic", "message", "server", "port"))
 
     def check_mandatory_params(self, req):
         require_fields(req, ("name", "payload"))
