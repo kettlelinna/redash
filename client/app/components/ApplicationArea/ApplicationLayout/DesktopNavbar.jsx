@@ -70,7 +70,6 @@ export default function DesktopNavbar() {
   const canCreateQuery = currentUser.hasPermission("create_query");
   const canCreateDashboard = currentUser.hasPermission("create_dashboard");
   const canCreateAlert = currentUser.hasPermission("list_alerts");
-  const canCreateSchedule = currentUser.hasPermission("admin");
 
   return (
     <nav className="desktop-navbar">
@@ -140,13 +139,6 @@ export default function DesktopNavbar() {
               <Menu.Item key="new-alert">
                 <Link data-test="CreateAlertMenuItem" href="alerts/new">
                   New Alert
-                </Link>
-              </Menu.Item>
-            )}
-            {canCreateSchedule && (
-              <Menu.Item key="new-schedule">
-                <Link data-test="CreateScheduleMenuItem" href="schedules/new">
-                  New Schedule
                 </Link>
               </Menu.Item>
             )}

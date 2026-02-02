@@ -20,6 +20,8 @@ import DeleteScheduleButton from "@/components/schedules/DeleteScheduleButton";
 import Schedule from "@/services/schedule";
 import { currentUser } from "@/services/auth";
 import routes from "@/services/routes";
+import wrapSettingsTab from "@/components/SettingsWrapper";
+
 
 class SchedulesList extends React.Component {
   static propTypes = {
@@ -123,19 +125,28 @@ class SchedulesList extends React.Component {
   }
 }
 
-const SchedulesListPage = itemsList(
-  SchedulesList,
-  () =>
-    new ResourceItemsSource({
-      isPlainList: true,
-      getRequest() {
-        return {};
-      },
-      getResource() {
-        return Schedule.query.bind(Schedule);
-      },
-    }),
-  () => new StateStorage({ orderByField: "created_at", orderByReverse: true, itemsPerPage: 20 })
+const SchedulesListPage = wrapSettingsTab(
+  "Schedules.List",
+  {
+    permission: "admin",
+    title: "Schedules",
+    path: "schedules",
+    order: 3,
+  },
+  itemsList(
+    SchedulesList,
+    () =>
+      new ResourceItemsSource({
+        isPlainList: true,
+        getRequest() {
+          return {};
+        },
+        getResource() {
+          return Schedule.query.bind(Schedule);
+        },
+      }),
+    () => new StateStorage({ orderByField: "created_at", itemsPerPage: 10 })
+  )
 );
 
 routes.register(

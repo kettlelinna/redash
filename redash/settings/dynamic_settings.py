@@ -1,9 +1,5 @@
 from collections import defaultdict
-from datetime import timedelta
 
-#from redash.worker import get_job_logger
-
-#logger = get_job_logger(__name__)
 
 # Replace this method with your own implementation in case you want to limit the time limit on certain queries or users.
 def query_time_limit(is_scheduled, user_id, org_id):
@@ -25,30 +21,6 @@ def periodic_jobs():
         {"func": some_other_job, "interval": timedelta(days=1)}
     ]
     """
-    return [
-        {"func": refresh_schedules, "interval": timedelta(seconds=3)},
-    ]
-
-def refresh_schedules():
-    from redash import models
-    from redash.utils.mqtt import MQTTClient
-    schedules = [s.to_dict() for s in models.Schedule.outdated_schedules()]
-    for s in schedules:
-        meta = {"topic": s.args.topic, "message": s.args.message}
-        connect_info = {"server": s.args.server, "port": s.args.port}
-        if s.objective == "emqx":
-            client = MQTTClient(connect_info["server"], connect_info["port"])
-            client.connect(s.args.username, s.args.password)
-            if client.is_connected():
-                if client.publish(meta["topic"], meta["message"]):
-                    #logger.info("Done scheduling: %s" % meta)
-                    pass
-                else:
-                    pass
-                    #logger.warning("Failed scheduling: %s" % meta)
-            else:
-                pass
-                #logger.warning("Cannot connect to mqtt: %s" % connect_info)
 
 
 # This provides the ability to override the way we store QueryResult's data column.
