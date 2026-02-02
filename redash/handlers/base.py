@@ -68,7 +68,8 @@ def require_fields(req, fields):
             missing_fields.append(f)
 
     if len(missing_fields) > 0:
-        abort(400, "Missing %s in request!" % ",".join(missing_fields))
+        message = "Missing %s in request!" % ",".join(missing_fields)
+        abort(400, message=message)
 
 
 def get_object_or_404(fn, *args, **kwargs):

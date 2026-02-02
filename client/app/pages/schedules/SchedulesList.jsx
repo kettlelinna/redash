@@ -40,7 +40,7 @@ class SchedulesList extends React.Component {
         width: null,
       }
     ),
-    Columns.custom(
+    /*Columns.custom(
       (text, schedule) => (
         <Button.Group>
           <Link.Button href={`schedules/${schedule.id}`}>Edit</Link.Button>
@@ -69,7 +69,7 @@ class SchedulesList extends React.Component {
         className: "text-nowrap p-l-0",
         isAvailable: () => currentUser.isAdmin,
       }
-    ),
+    ),*/
   ];
 
   createSchedule = () => {
