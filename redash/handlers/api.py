@@ -53,6 +53,10 @@ from redash.handlers.groups import (
     GroupMemberResource,
     GroupResource,
 )
+from redash.handlers.schedules import (
+    ScheduleListResource,
+    ScheduleResource,
+)
 from redash.handlers.permissions import (
     CheckPermissionResource,
     ObjectPermissionsListResource,
@@ -160,6 +164,9 @@ api.add_org_resource(
 api.add_org_resource(DataSourcePauseResource, "/api/data_sources/<data_source_id>/pause")
 api.add_org_resource(DataSourceTestResource, "/api/data_sources/<data_source_id>/test")
 api.add_org_resource(DataSourceResource, "/api/data_sources/<data_source_id>", endpoint="data_source")
+
+api.add_org_resource(ScheduleListResource, "/api/schedules", endpoint="schedules")
+api.add_org_resource(ScheduleResource, "/api/schedules/<schedule_id>", endpoint="schedule")
 
 api.add_org_resource(GroupListResource, "/api/groups", endpoint="groups")
 api.add_org_resource(GroupResource, "/api/groups/<group_id>", endpoint="group")

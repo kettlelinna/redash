@@ -85,27 +85,27 @@ from redash.utils.configuration import ConfigurationContainer
 logger = logging.getLogger(__name__)
 
 
-class ScheduledQueriesExecutions:
-    KEY_NAME = "sq:executed_at"
-
-    def __init__(self):
+class ScheduledExecutions:
+    def __init__(self, key_name):
         self.executions = {}
+        self.KEY_NAME = key_name
 
     def refresh(self):
         self.executions = redis_connection.hgetall(self.KEY_NAME)
 
-    def update(self, query_id):
-        redis_connection.hset(self.KEY_NAME, mapping={query_id: time.time()})
+    def update(self, id):
+        redis_connection.hset(self.KEY_NAME, mapping={id: time.time()})
 
-    def get(self, query_id):
-        timestamp = self.executions.get(str(query_id))
+    def get(self, id):
+        timestamp = self.executions.get(str(id))
         if timestamp:
             timestamp = utils.dt_from_timestamp(timestamp)
 
         return timestamp
 
 
-scheduled_queries_executions = ScheduledQueriesExecutions()
+scheduled_queries_executions = ScheduledExecutions("sq:executed_at") # scheduled query
+scheduled_schedules_executions = ScheduledExecutions("ss:executed_at") # scheduled schedule
 
 
 @generic_repr("id", "name", "type", "org_id", "created_at")
@@ -1516,6 +1516,84 @@ class QuerySnippet(TimestampMixin, db.Model, BelongsToOrgMixin):
 
         return d
 
+@generic_repr("id", "name", "description", "schedule", "interval", "objective", "org_id")
+class Schedule(TimestampMixin, db.Model, BelongsToOrgMixin):
+    id = primary_key("Schedule")
+    org_id = Column(key_type("Organization"), db.ForeignKey("organizations.id"))
+    org = db.relationship(Organization, backref="schedules")
+
+    name = Column(db.String(255))
+    description = Column(db.String(4096), nullable=True)
+    schedule = Column(MutableDict.as_mutable(JSONB), nullable=False)
+    interval = json_cast_property(db.Integer, "schedule", "interval", default=3)
+    objective = Column(db.String(255))
+    args = Column(MutableDict.as_mutable(JSONB), nullable=True, default={})
+
+    __tablename__ = "schedules"
+
+    @classmethod
+    def all(cls, org):
+        return cls.query.filter(cls.org == org)
+
+    @classmethod
+    def find_by_name(cls, org, schedule_names):
+        result = cls.query.filter(cls.org == org, cls.name.in_(group_names))
+        return list(result)
+
+    @classmethod
+    def outdated_schedules(cls):
+        schedules = (
+            Schedule.query.order_by(Schedule.id).all()
+        )
+
+        now = utils.utcnow()
+        outdated_schedules = {}
+        scheduled_schedules_executions.refresh()
+
+        for schedule in schedules:
+            try:
+
+                if schedule.schedule.get("disabled"):
+                    continue
+
+                retrieved_at = scheduled_schedules_executions.get(schedule.id)
+
+                if should_schedule_next(
+                    retrieved_at,
+                    now,
+                    schedule.interval,
+                ):
+                    key = "{}:{}".format(schedule.name, schedule.objective)
+                    outdated_schedules[key] = schedule
+            except Exception as e:
+                schedule.schedule["disabled"] = True
+                db.session.commit()
+
+                message = (
+                    "Could not determine if schedule %d is outdated due to %s. The schedule for this schedule has been disabled."
+                    % (schedule.id, repr(e))
+                )
+                logging.info(message)
+                sentry.capture_exception(type(e)(message).with_traceback(e.__traceback__))
+
+        return list(outdated_schedules.values())
+
+    def to_dict(self):
+        d = {
+            "id": self.id,
+            "schedule": self.schedule,
+            "interval": self.interval,
+            "objective": self.objective,
+            "args": self.args
+        }
+
+        return d
+
+    def delete(self):
+        res = db.session.delete(self)
+        db.session.commit()
+
+        return res
 
 def init_db():
     default_org = Organization(name="Default", slug="default", settings={})

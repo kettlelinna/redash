@@ -62,9 +62,13 @@ def record_event(org, user, options):
 
 
 def require_fields(req, fields):
+    missing_fields = []
     for f in fields:
         if f not in req:
-            abort(400)
+            missing_fields.append(f)
+
+    if len(missing_fields) > 0:
+        abort(400, "Missing %s in request!" % ",".join(missing_fields))
 
 
 def get_object_or_404(fn, *args, **kwargs):
