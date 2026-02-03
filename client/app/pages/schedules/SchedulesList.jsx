@@ -95,21 +95,21 @@ class SchedulesList extends React.Component {
 }
 
 const SchedulesListPage = wrapSettingsTab(
-  "Schedules.List",
+  "Schedules1.List",
   {
     permission: "admin",
-    title: "Schedules",
-    path: "schedules",
-    order: 8,
+    title: "Schedules1",
+    path: "schedules1",
+    order: 9,
   },
   SchedulesList
 );
 
 routes.register(
-  "Schedules.List",
+  "Schedules1.List",
   routeWithUserSession({
-    path: "/schedules",
-    title: "Schedules",
-    render: pageProps => <SchedulesListPage {...pageProps} currentPage="schedules" />,
+    path: "/schedules1",
+    title: "Schedules1",
+    render: pageProps => <SchedulesListPage {...pageProps} currentPage="schedules1" />,
   })
 );
