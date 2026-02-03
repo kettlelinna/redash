@@ -1589,7 +1589,7 @@ class Schedule(TimestampMixin, db.Model, BelongsToOrgMixin):
             "name": self.name,
             "description": self.description,
             "created_at": self.created_at,
-            "payload": json.dumps(payload, indent=4, ensure_ascii=False)
+            "payload": json.dumps(payload, indent=4, ensure_ascii=False) # indent=4 mean pretty json
         }
 
         return d

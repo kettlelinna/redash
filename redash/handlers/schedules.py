@@ -5,6 +5,7 @@ from redash.utils import json_dumps, json_loads
 from redash import models
 from redash.handlers.base import BaseResource, require_fields
 from redash.permissions import require_admin
+from redash.settings import parse_boolean
 
 
 def check_mqtt_params(req):
@@ -20,20 +21,21 @@ def check_mandatory_params(req):
     if req["payload"]["objective"] == "mqtt":
         check_mqtt_params(req)
 
-class ScheduleListResource(BaseResource):
+# will create a record for table
+def create_schedule(req, org):
+    name = req["name"].lower()
+    payload = req["payload"]
+    schedule = models.Schedule(
+        name=name,
+        org=org,
+        description=req.get("description"),
+        schedule={"interval": payload.get("interval"), "disable": parse_boolean(str(payload.get("interval")))},
+        objective=payload["objective"],
+        args=payload.get("args")
+    )
+    return schedule
 
-    def create_schedule(self, req):
-        name = req["name"].lower()
-        payload = req["payload"]
-        schedule = models.Schedule(
-            name=name,
-            org=self.current_org,
-            description=req.get("description"),
-            schedule={"interval": payload.get("interval"), "disable": False},
-            objective=payload["objective"],
-            args=payload.get("args")
-        )
-        return schedule
+class ScheduleListResource(BaseResource):
 
     # create schedule
     @require_admin
@@ -45,7 +47,7 @@ class ScheduleListResource(BaseResource):
         if len(schedule_existed) != 0:
             abort(500, message="Schedule have existed.")
         else:
-            schedule = self.create_schedule(req)
+            schedule = create_schedule(req, self.current_org)
             models.db.session.add(schedule)
             models.db.session.commit()
 
@@ -73,9 +75,9 @@ class ScheduleResource(BaseResource):
         payload = req["payload"]
         name = req["name"].lower()
         schedule.name = name
-        schedule.description = req.get("description"),
-        schedule.schedule = {"interval": payload.get("interval"), "disable": False},
-        schedule.objective = payload["objective"],
+        schedule.description = req.get("description")
+        schedule.schedule = {"interval": payload.get("interval"), "disable": parse_boolean(str(payload.get("interval")))}
+        schedule.objective = payload["objective"]
         schedule.args = payload.get("args")
 
         models.db.session.commit()
