@@ -1,6 +1,7 @@
 from flask import request
 from flask_restful import abort
 
+from redash.utils import json_dumps, json_loads
 from redash import models
 from redash.handlers.base import BaseResource, require_fields
 from redash.permissions import require_admin
@@ -14,6 +15,7 @@ class ScheduleListResource(BaseResource):
 
     def check_mandatory_params(self, req):
         require_fields(req, ("name", "payload"))
+        req["payload"] = json_loads(req["payload"])
         require_fields(req["payload"], ("objective",))
 
         if req["payload"]["objective"] == "mqtt":

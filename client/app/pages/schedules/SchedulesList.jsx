@@ -15,7 +15,6 @@ import LoadingState from "@/components/items-list/components/LoadingState";
 import ItemsTable, {Columns} from "@/components/items-list/components/ItemsTable";
 
 import ScheduleDialog from "@/components/schedules/ScheduleDialog";
-import DeleteScheduleButton from "@/components/schedules/DeleteScheduleButton";
 
 import Schedule from "@/services/schedule";
 import {currentUser} from "@/services/auth";

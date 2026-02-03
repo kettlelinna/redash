@@ -29,7 +29,7 @@ function ScheduleDialog({ schedule, dialog, readOnly }) {
   const isEditing = !!get(schedule, "id");
 
   const formFields = [
-    { name: "name", title: "Trigger", type: "text", required: true, autoFocus: !isEditing },
+    { name: "name", title: "Name", type: "text", required: true, autoFocus: !isEditing },
     { name: "description", title: "Description", type: "text" },
     { name: "payload", title: "Payload", type: "ace", required: true },
   ].map(field => ({ ...field, readOnly, initialValue: get(schedule, field.name, "") }));
