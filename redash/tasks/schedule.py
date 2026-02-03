@@ -127,15 +127,16 @@ def refresh_schedules():
 def trigger_mqtt(schedules):
     from redash.utils.mqtt import MQTTClient
     for s in schedules:
-        meta = {"topic": s.args["topic"], "message": s.args["message"], "username": s.args["username"], "password": s.args["password"]}
-        connect_info = {"server": s.args["server"], "port": s.args["port"]}
+        meta = {"topic": s.args["topic"], "message": s.args["message"]}
+        connect_info = {"server": s.args["server"], "port": s.args["port"], "username": s.args["username"], "password": s.args["password"]}
 
         client = MQTTClient(connect_info["server"], connect_info["port"])
-        client.connect(meta["username"], meta["password"])
+        client.connect(connect_info["username"], connect_info["password"])
         if client.is_connected():
             if client.publish(meta["topic"], meta["message"]):
-                logger.info("Done scheduling: %s" % meta)
+                logger.info("Done scheduling mqtt: %s" % meta)
             else:
-                logger.warning("Failed scheduling: %s" % meta)
+                logger.warning("Failed scheduling mqtt: %s" % meta)
+            client.disconnect()
         else:
             logger.warning("Cannot connect to mqtt: %s" % connect_info)
