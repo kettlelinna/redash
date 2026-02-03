@@ -58,7 +58,7 @@ class SchedulesList extends React.Component {
             className="w-100"
             disabled={false}
             schedule={schedule}
-            title=null
+            title={null}
             onClick={() => this.onScheduleDeleted()}>
             Delete
           </DeleteScheduleButton>
