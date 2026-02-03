@@ -52,7 +52,7 @@ class SchedulesList extends React.Component {
       field: "description",
       className: "text-nowrap",
     }),
-    Columns.custom(schedule => <code className="payload-content">{schedule}</code>, {
+    Columns.custom(schedule => <code className="payload-content">123</code>, {
       title: "Payload",
       field: "payload",
     }),

@@ -1587,10 +1587,8 @@ class Schedule(TimestampMixin, db.Model, BelongsToOrgMixin):
             "id": self.id,
             "name": self.name,
             "description": self.description,
-            "interval": self.interval,
-            "objective": self.objective,
             "created_at": self.created_at,
-            #"payload": payload
+            "payload": payload
         }
 
         return d

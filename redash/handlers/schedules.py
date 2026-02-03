@@ -7,19 +7,20 @@ from redash.handlers.base import BaseResource, require_fields
 from redash.permissions import require_admin
 
 
+def check_mqtt_params(req):
+    require_fields(req["payload"], ("interval", "args"))
+    require_fields(req["payload"]["args"], ("topic", "message", "server", "port", "username", "password"))
+
+
+def check_mandatory_params(req):
+    require_fields(req, ("name", "payload"))
+    req["payload"] = json_loads(req["payload"])
+    require_fields(req["payload"], ("objective",))
+
+    if req["payload"]["objective"] == "mqtt":
+        check_mqtt_params(req)
+
 class ScheduleListResource(BaseResource):
-
-    def check_mqtt_params(self, req):
-        require_fields(req["payload"], ("interval", "args"))
-        require_fields(req["payload"]["args"], ("topic", "message", "server", "port", "username", "password"))
-
-    def check_mandatory_params(self, req):
-        require_fields(req, ("name", "payload"))
-        req["payload"] = json_loads(req["payload"])
-        require_fields(req["payload"], ("objective",))
-
-        if req["payload"]["objective"] == "mqtt":
-            self.check_mqtt_params(req)
 
     def create_schedule(self, req):
         name = req["name"].lower()
@@ -38,7 +39,7 @@ class ScheduleListResource(BaseResource):
     @require_admin
     def post(self):
         req = request.get_json(force=True)
-        self.check_mandatory_params(req)
+        check_mandatory_params(req)
 
         schedule_existed = models.Schedule.find_by_name(self.current_org, [req["name"].lower()])
         if len(schedule_existed) != 0:
@@ -65,7 +66,7 @@ class ScheduleResource(BaseResource):
     @require_admin
     def post(self, schedule_id):
         req = request.get_json(force=True)
-        self.check_mandatory_params(req)
+        check_mandatory_params(req)
 
         schedule = models.Schedule.get_by_id_and_org(schedule_id, self.current_org)
 
