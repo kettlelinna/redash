@@ -56,24 +56,7 @@ class SchedulesList extends React.Component {
       title: "Payload",
       field: "payload",
     }),
-    Columns.avatar({field: "user", className: "p-l-0 p-r-0"}, name => `Created by ${name}`),
-    Columns.date.sortable({
-      title: "Created At",
-      field: "created_at",
-      className: "text-nowrap",
-      width: "1%",
-    }),
-    Columns.custom(
-      (text, schedule) =>
-        canEditSchedule(schedule) && (
-          <Button type="danger" className="w-100" onClick={e => this.onScheduleDeleted(e, schedule)}>
-            Delete
-          </Button>
-        ),
-      {
-        width: "1%",
-      }
-    ),
+
   ];
 
   componentDidMount() {
@@ -169,7 +152,27 @@ class SchedulesList extends React.Component {
             )}
           </div>
         )}
-
+        {controller.isLoaded && !controller.isEmpty && (
+          <div className="table-responsive">
+            <ItemsTable
+              items={controller.pageItems}
+              columns={this.listColumns}
+              showHeader={false}
+              context={this.actions}
+              orderByField={controller.orderByField}
+              orderByReverse={controller.orderByReverse}
+              toggleSorting={controller.toggleSorting}
+            />
+            <Paginator
+              showPageSizeSelect
+              totalCount={controller.totalItemsCount}
+              pageSize={controller.itemsPerPage}
+              onPageSizeChange={itemsPerPage => controller.updatePagination({itemsPerPage})}
+              page={controller.page}
+              onChange={page => controller.updatePagination({page})}
+            />
+          </div>
+        )}
       </div>
     );
   }
