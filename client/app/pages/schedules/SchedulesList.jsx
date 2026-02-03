@@ -74,14 +74,13 @@ class SchedulesList extends React.Component {
     const {isNewOrEditPage, scheduleId} = this.props.controller.params;
 
     if (isNewOrEditPage) {
-      if (scheduleId === "new" || scheduleId === "mynew") {
+      if (scheduleId === "new") {
         if (policy.isCreateScheduleEnabled()) {
           this.showScheduleDialog();
         } else {
           navigateTo("schedules", true);
         }
       } else {
-        console.log(scheduleId);
         Schedule.get({id: scheduleId})
           .then(this.showScheduleDialog)
           .catch(error => {
