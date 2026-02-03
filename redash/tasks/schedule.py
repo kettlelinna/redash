@@ -128,7 +128,7 @@ def trigger_mqtt(schedules):
     from redash.utils.mqtt import MQTTClient
     for s in schedules:
         meta = {"topic": s.args["topic"], "message": s.args["message"]}
-        connect_info = {"server": s.args["server"], "port": s.args["port"], "username": s.args["username"], "password": s.args["password"]}
+        connect_info = {"server": "emqx-headless.emqx.svc.cluster.local", "port": 1883, "username": s.args["username"], "password": s.args["password"]}
 
         client = MQTTClient(connect_info["server"], connect_info["port"])
         client.connect(connect_info["username"], connect_info["password"])
