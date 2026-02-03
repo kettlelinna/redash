@@ -118,14 +118,20 @@ def schedule_periodic_jobs(jobs):
 
 def refresh_schedules():
     from redash import models
+    schedules = models.Schedule.outdated_schedules()
+
+    mqtt_schedules = [s for s in schedules if s.objective == "mqtt"]
+    trigger_mqtt(mqtt_schedules)
+
+
+def trigger_mqtt(schedules):
     from redash.utils.mqtt import MQTTClient
-    schedules = [s.to_dict() for s in models.Schedule.outdated_schedules()]
     for s in schedules:
-        meta = {"topic": s.args.topic, "message": s.args.message}
-        connect_info = {"server": s.args.server, "port": s.args.port}
+        meta = {"topic": s.args["topic"], "message": s.args["message"]}
+        connect_info = {"server": s.args["server"], "port": s.args["port"]}
         if s.objective == "emqx":
             client = MQTTClient(connect_info["server"], connect_info["port"])
-            client.connect(s.args.username, s.args.password)
+            client.connect(s.args["username"], s.args["password"])
             if client.is_connected():
                 if client.publish(meta["topic"], meta["message"]):
                     logger.info("Done scheduling: %s" % meta)
