@@ -56,7 +56,23 @@ class SchedulesList extends React.Component {
       title: "Payload",
       field: "payload",
     }),
-
+    Columns.date.sortable({
+      title: "Created At",
+      field: "created_at",
+      className: "text-nowrap",
+      width: "1%",
+    }),
+    Columns.custom(
+      (text, schedule) =>
+        canEditSchedule(schedule) && (
+          <Button type="danger" className="w-100" onClick={e => this.onScheduleDeleted(e, schedule)}>
+            Delete
+          </Button>
+        ),
+      {
+        width: "1%",
+      }
+    ),
   ];
 
   componentDidMount() {

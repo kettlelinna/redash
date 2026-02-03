@@ -1583,6 +1583,7 @@ class Schedule(TimestampMixin, db.Model, BelongsToOrgMixin):
             "schedule": self.schedule,
             "interval": self.interval,
             "objective": self.objective,
+            "created_at": self.created_at,
             "args": self.args
         }
 
