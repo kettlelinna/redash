@@ -25,11 +25,12 @@ def check_mandatory_params(req):
 def create_schedule(req, org):
     name = req["name"].lower()
     payload = req["payload"]
+    schedule = payload["schedule"] if "schedule" in payload else {}
     schedule = models.Schedule(
         name=name,
         org=org,
         description=req.get("description"),
-        schedule={"interval": payload.get("interval"), "disable": parse_boolean(str(payload.get("disable")))},
+        schedule={"interval": schedule.get("interval"), "disable": parse_boolean(str(schedule.get("disable")))},
         objective=payload["objective"],
         args=payload.get("args")
     )
@@ -73,10 +74,11 @@ class ScheduleResource(BaseResource):
         schedule = models.Schedule.get_by_id_and_org(schedule_id, self.current_org)
 
         payload = req["payload"]
+        schedule_info = payload["schedule"] if "schedule" in payload else {}
         name = req["name"].lower()
         schedule.name = name
         schedule.description = req.get("description")
-        schedule.schedule = {"interval": payload.get("interval"), "disable": parse_boolean(str(payload.get("disable")))}
+        schedule.schedule = {"interval": schedule_info.get("interval"), "disable": parse_boolean(str(schedule_info.get("disable")))}
         schedule.objective = payload["objective"]
         schedule.args = payload.get("args")
 
