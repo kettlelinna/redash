@@ -48,6 +48,10 @@ export default class DefaultPolicy {
     return true;
   }
 
+  isCreateScheduleEnabled() {
+    return true;
+  }
+
   getDashboardRefreshIntervals() {
     const result = clientConfig.dashboardRefreshIntervals;
     return isArray(result) ? result : null;

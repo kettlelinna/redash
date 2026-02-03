@@ -2,26 +2,32 @@ import React from "react";
 
 import Button from "antd/lib/button";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
-import Link from "@/components/Link";
 import navigateTo from "@/components/ApplicationArea/navigateTo";
 import Paginator from "@/components/Paginator";
+import Modal from "antd/lib/modal";
 
-import { wrap as itemsList, ControllerType } from "@/components/items-list/ItemsList";
-import { ResourceItemsSource } from "@/components/items-list/classes/ItemsSource";
-import { StateStorage } from "@/components/items-list/classes/StateStorage";
+import {wrap as itemsList, ControllerType} from "@/components/items-list/ItemsList";
+import {ResourceItemsSource} from "@/components/items-list/classes/ItemsSource";
+import {StateStorage} from "@/components/items-list/classes/StateStorage";
 
 import LoadingState from "@/components/items-list/components/LoadingState";
-import EmptyState from "@/components/items-list/components/EmptyState";
-import ItemsTable, { Columns } from "@/components/items-list/components/ItemsTable";
+import ItemsTable, {Columns} from "@/components/items-list/components/ItemsTable";
 
-import CreateScheduleDialog from "@/components/schedules/CreateScheduleDialog";
+import ScheduleDialog from "@/components/schedules/ScheduleDialog";
 import DeleteScheduleButton from "@/components/schedules/DeleteScheduleButton";
 
 import Schedule from "@/services/schedule";
-import { currentUser } from "@/services/auth";
+import {currentUser} from "@/services/auth";
 import routes from "@/services/routes";
 import wrapSettingsTab from "@/components/SettingsWrapper";
+import notification from "@/services/notification";
+import PlainButton from "@/components/PlainButton";
 
+import "./SchedulesList.less"
+import {policy} from "@/services/policy";
+
+
+const canEditSchedule = () => currentUser.isAdmin;
 
 class SchedulesList extends React.Component {
   static propTypes = {
@@ -29,76 +35,140 @@ class SchedulesList extends React.Component {
   };
 
   listColumns = [
-    Columns.custom(
+    Columns.custom.sortable(
       (text, schedule) => (
-        <div>
+        <PlainButton type="link" className="table-main-title" onClick={() => this.showScheduleDialog(schedule)}>
           {schedule.name}
-        </div>
+        </PlainButton>
       ),
       {
+        title: "Name",
         field: "name",
-        width: null,
-      }
-    ),
-    Columns.custom(
-      (text, schedule) => (
-        <Button.Group>
-          <Link.Button href={`schedules/${schedule.id}`}>Edit</Link.Button>
-        </Button.Group>
-      ),
-      {
-        width: "1%",
         className: "text-nowrap",
       }
     ),
+    Columns.custom.sortable(text => text, {
+      title: "Description",
+      field: "description",
+      className: "text-nowrap",
+    }),
+    Columns.custom(schedule => <code className="payload-content">{schedule}</code>, {
+      title: "Payload",
+      field: "payload",
+    }),
+    Columns.avatar({field: "user", className: "p-l-0 p-r-0"}, name => `Created by ${name}`),
+    Columns.date.sortable({
+      title: "Created At",
+      field: "created_at",
+      className: "text-nowrap",
+      width: "1%",
+    }),
     Columns.custom(
-      (text, schedule) => {
-        return (
-          <DeleteScheduleButton
-            className="w-100"
-            disabled={false}
-            schedule={schedule}
-            title={null}
-            onClick={() => this.onScheduleDeleted()}>
+      (text, schedule) =>
+        canEditSchedule(schedule) && (
+          <Button type="danger" className="w-100" onClick={e => this.onScheduleDeleted(e, schedule)}>
             Delete
-          </DeleteScheduleButton>
-        );
-      },
+          </Button>
+        ),
       {
         width: "1%",
-        className: "text-nowrap p-l-0",
-        isAvailable: () => currentUser.isAdmin,
       }
     ),
   ];
 
-  createSchedule = () => {
-    CreateScheduleDialog.showModal().onClose(schedule =>
-      Schedule.create(schedule).then(newSchedule => navigateTo(`schedules/${newSchedule.id}`))
-    );
+  componentDidMount() {
+    const {isNewOrEditPage, scheduleId} = this.props.controller.params;
+
+    if (isNewOrEditPage) {
+      if (scheduleId === "new") {
+        if (policy.isCreateScheduleEnabled()) {
+          this.showScheduleDialog();
+        } else {
+          navigateTo("schedules", true);
+        }
+      } else {
+        Schedule.get({id: scheduleId})
+          .then(this.showScheduleDialog)
+          .catch(error => {
+            this.props.controller.handleError(error);
+          });
+      }
+    }
+  }
+
+  onScheduleDeleted = (event, schedule) => {
+    Modal.confirm({
+      title: "Delete Schedule",
+      content: "Are you sure you want to delete this schedule?",
+      okText: "Yes",
+      okType: "danger",
+      cancelText: "No",
+      onOk: () => {
+        Schedule.delete(schedule)
+          .then(() => {
+            notification.success("Schedule deleted successfully.");
+            this.props.controller.update();
+          })
+          .catch(() => {
+            notification.error("Failed deleting schedule.");
+          });
+      },
+    });
   };
 
-  onScheduleDeleted = () => {
-    this.props.controller.updatePagination({ page: 1 });
-    this.props.controller.update();
+  saveSchedule = schedule => {
+    const saveSchedule = schedule.id ? Schedule.save : Schedule.create;
+    return saveSchedule(schedule);
+  };
+
+  showScheduleDialog = (schedule = null) => {
+    const canSave = !schedule || canEditSchedule();
+    navigateTo("schedules/" + get(schedule, "id", "new"), true);
+    const goToSchedulesList = () => navigateTo("schedules", true);
+    ScheduleDialog.showModal({
+      schedule,
+      readOnly: !canSave,
+    })
+      .onClose(schedule =>
+        this.saveSchedule(schedule).then(() => {
+          this.props.controller.update();
+          goToSchedulesList();
+        })
+      )
+      .onDismiss(goToSchedulesList);
   };
 
   render() {
-    const { controller } = this.props;
+    const {controller} = this.props;
 
     return (
       <div data-test="ScheduleList">
         {currentUser.isAdmin && (
           <div className="m-b-15">
-            <Button type="primary" onClick={this.createSchedule}>
-              <i className="fa fa-plus m-r-5" aria-hidden="true" />
+            <Button
+              type="primary"
+              onClick={() => this.showScheduleDialog()}
+              disabled={!policy.isCreateScheduleEnabled()}>
+              <i className="fa fa-plus m-r-5" aria-hidden="true"/>
               New Schedule
             </Button>
           </div>
         )}
 
-        {!controller.isLoaded && <LoadingState className="" />}
-        {controller.isLoaded && controller.isEmpty && <EmptyState className="" />}
+        {!controller.isLoaded && <LoadingState className=""/>}
+        {controller.isLoaded && controller.isEmpty && (
+          <div className="text-center">
+            There are no schedule yet.
+            {policy.isCreateScheduleEnabled() && (
+              <div className="m-t-5">
+                <PlainButton type="link" onClick={() => this.showScheduleDialog()}>
+                  Click here
+                </PlainButton>{" "}
+                to add one.
+              </div>
+            )}
+          </div>
+        )}
         {controller.isLoaded && !controller.isEmpty && (
           <div className="table-responsive">
             <ItemsTable
@@ -114,9 +184,9 @@ class SchedulesList extends React.Component {
               showPageSizeSelect
               totalCount={controller.totalItemsCount}
               pageSize={controller.itemsPerPage}
-              onPageSizeChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
+              onPageSizeChange={itemsPerPage => controller.updatePagination({itemsPerPage})}
               page={controller.page}
-              onChange={page => controller.updatePagination({ page })}
+              onChange={page => controller.updatePagination({page})}
             />
           </div>
         )}
@@ -131,7 +201,7 @@ const SchedulesListPage = wrapSettingsTab(
     permission: "admin",
     title: "Schedules",
     path: "schedules",
-    order: 3,
+    order: 4,
   },
   itemsList(
     SchedulesList,
@@ -145,7 +215,7 @@ const SchedulesListPage = wrapSettingsTab(
           return Schedule.query.bind(Schedule);
         },
       }),
-    () => new StateStorage({ orderByField: "created_at", orderByReverse: true, itemsPerPage: 10 })
+    () => new StateStorage({orderByField: "created_at", orderByReverse: true, itemsPerPage: 10})
   )
 );
 
@@ -154,6 +224,14 @@ routes.register(
   routeWithUserSession({
     path: "/schedules",
     title: "Schedules",
-    render: pageProps => <SchedulesListPage {...pageProps} currentPage="schedules" />,
+    render: pageProps => <SchedulesListPage {...pageProps} currentPage="schedules"/>,
+  })
+);
+routes.register(
+  "Schedules.NewOrEdit",
+  routeWithUserSession({
+    path: "/schedules/:scheduleId",
+    title: "Schedules",
+    render: pageProps => <SchedulesListPage {...pageProps} currentPage="schedules" isNewOrEditPage/>,
   })
 );
