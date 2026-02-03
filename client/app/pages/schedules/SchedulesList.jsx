@@ -169,27 +169,7 @@ class SchedulesList extends React.Component {
             )}
           </div>
         )}
-        {controller.isLoaded && !controller.isEmpty && (
-          <div className="table-responsive">
-            <ItemsTable
-              items={controller.pageItems}
-              columns={this.listColumns}
-              showHeader={false}
-              context={this.actions}
-              orderByField={controller.orderByField}
-              orderByReverse={controller.orderByReverse}
-              toggleSorting={controller.toggleSorting}
-            />
-            <Paginator
-              showPageSizeSelect
-              totalCount={controller.totalItemsCount}
-              pageSize={controller.itemsPerPage}
-              onPageSizeChange={itemsPerPage => controller.updatePagination({itemsPerPage})}
-              page={controller.page}
-              onChange={page => controller.updatePagination({page})}
-            />
-          </div>
-        )}
+
       </div>
     );
   }

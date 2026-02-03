@@ -11,7 +11,7 @@ class ScheduleListResource(BaseResource):
 
     def check_mqtt_params(self, req):
         require_fields(req["payload"], ("interval", "args"))
-        require_fields(req["payload"]["args"], ("topic", "message", "server", "port"))
+        require_fields(req["payload"]["args"], ("topic", "message", "server", "port", "username", "password"))
 
     def check_mandatory_params(self, req):
         require_fields(req, ("name", "payload"))
