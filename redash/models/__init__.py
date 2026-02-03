@@ -4,6 +4,7 @@ import logging
 import numbers
 import re
 import time
+import json
 
 import pytz
 from sqlalchemy import UniqueConstraint, and_, cast, distinct, func, or_
@@ -1587,7 +1588,8 @@ class Schedule(TimestampMixin, db.Model, BelongsToOrgMixin):
             "id": self.id,
             "name": self.name,
             "description": self.description,
-            "created_at": self.created_at
+            "created_at": self.created_at,
+            "payload": json.dumps(payload)
         }
 
         return d
