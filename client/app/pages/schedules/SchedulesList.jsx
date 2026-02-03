@@ -23,7 +23,6 @@ import wrapSettingsTab from "@/components/SettingsWrapper";
 import notification from "@/services/notification";
 import PlainButton from "@/components/PlainButton";
 
-import "./SchedulesList.less"
 import {policy} from "@/services/policy";
 
 
@@ -52,10 +51,6 @@ class SchedulesList extends React.Component {
       field: "description",
       className: "text-nowrap",
     }),
-    Columns.custom(schedule => <code className="payload-content">123</code>, {
-      title: "Payload",
-      field: "payload",
-    }),
     Columns.date.sortable({
       title: "Created At",
       field: "created_at",
@@ -79,13 +74,14 @@ class SchedulesList extends React.Component {
     const {isNewOrEditPage, scheduleId} = this.props.controller.params;
 
     if (isNewOrEditPage) {
-      if (scheduleId === "new") {
+      if (scheduleId === "new" || scheduleId === "mynew") {
         if (policy.isCreateScheduleEnabled()) {
           this.showScheduleDialog();
         } else {
           navigateTo("schedules", true);
         }
       } else {
+        console.log(scheduleId);
         Schedule.get({id: scheduleId})
           .then(this.showScheduleDialog)
           .catch(error => {
@@ -226,11 +222,14 @@ routes.register(
     render: pageProps => <SchedulesListPage {...pageProps} currentPage="schedules"/>,
   })
 );
+
+// can route to /schedules/1 and /schedules/new
 routes.register(
   "Schedules.NewOrEdit",
   routeWithUserSession({
     path: "/schedules/:scheduleId",
     title: "Schedules",
+    // here pageProps only include scheduleId which from path: /schedules/:scheduleId
     render: pageProps => <SchedulesListPage {...pageProps} currentPage="schedules" isNewOrEditPage/>,
   })
 );
