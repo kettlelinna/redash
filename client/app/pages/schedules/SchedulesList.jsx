@@ -51,6 +51,16 @@ class SchedulesList extends React.Component {
       field: "description",
       className: "text-nowrap",
     }),
+    Columns.custom.sortable(text => text, {
+      title: "Interval",
+      field: "interval",
+      className: "text-nowrap",
+    }),
+    Columns.custom.sortable(text => text, {
+      title: "Disable",
+      field: "disable",
+      className: "text-nowrap",
+    }),
     Columns.date.sortable({
       title: "Created At",
       field: "created_at",

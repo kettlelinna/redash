@@ -1526,7 +1526,7 @@ class Schedule(TimestampMixin, db.Model, BelongsToOrgMixin):
     name = Column(db.String(255))
     description = Column(db.String(4096), nullable=True)
     schedule = Column(MutableDict.as_mutable(JSONB), nullable=False)
-    interval = json_cast_property(db.Integer, "schedule", "interval", default=0)
+    interval = json_cast_property(db.Integer, "schedule", "interval", default=3)
     objective = Column(db.String(255))
     args = Column(MutableDict.as_mutable(JSONB), nullable=True, default={})
 
@@ -1581,13 +1581,18 @@ class Schedule(TimestampMixin, db.Model, BelongsToOrgMixin):
     def to_dict(self):
         payload = {
             "objective": self.objective,
-            "interval": self.interval,
+            "schedule": {
+                "interval": self.interval,
+                "disable": self.schedule.disable
+            },
             "args": self.args
         }
         d = {
             "id": self.id,
             "name": self.name,
             "description": self.description,
+            "interval": self.interval,
+            "disable": self.schedule.disable,
             "created_at": self.created_at,
             "payload": json.dumps(payload, indent=4, ensure_ascii=False) # indent=4 mean pretty json
         }
