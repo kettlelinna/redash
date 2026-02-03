@@ -16,7 +16,6 @@ class MQTT(BaseResource):
         self.mqtt_port = 1883
         self.client = MQTTClient(self.mqtt_server, self.mqtt_port)
         self.client.connect(self.current_user.email, self.current_user.api_key)
-        self.client.loop_start()
 
     @require_admin
     def post(self):

@@ -132,12 +132,13 @@ def trigger_mqtt(schedules):
 
         client = MQTTClient(connect_info["server"], connect_info["port"])
         client.connect(connect_info["username"], connect_info["password"])
-        client.loop_start()
-        if client.is_connected():
+        is_connected = client.is_connected()
+        if is_connected:
             if client.publish(meta["topic"], meta["message"]):
                 logger.info("Done scheduling mqtt: %s" % meta)
             else:
                 logger.warning("Failed scheduling mqtt: %s" % meta)
             client.disconnect()
         else:
+            connect_info["is_connected"] = is_connected
             logger.warning("Cannot connect to mqtt: %s" % connect_info)
