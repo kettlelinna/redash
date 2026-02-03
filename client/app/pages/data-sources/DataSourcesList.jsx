@@ -168,6 +168,16 @@ const DataSourcesListPage = wrapSettingsTab(
   },
   DataSourcesList
 );
+const DataSourcesListPage2 = wrapSettingsTab(
+  "DataSources2.List",
+  {
+    permission: "admin",
+    title: "Schedules2",
+    path: "schedulesme",
+    order: 9,
+  },
+  DataSourcesList
+);
 
 routes.register(
   "DataSources.List",
@@ -183,5 +193,13 @@ routes.register(
     path: "/data_sources/new",
     title: "Data Sources",
     render: pageProps => <DataSourcesListPage {...pageProps} isNewDataSourcePage />,
+  })
+);
+routes.register(
+  "Schedules2.List",
+  routeWithUserSession({
+    path: "/schedulesme",
+    title: "Schedules2",
+    render: pageProps => <DataSourcesListPage2 {...pageProps} currentPage="schedulesme" />,
   })
 );

@@ -72,7 +72,7 @@ class SchedulesList extends React.Component {
     ),*/
   ];
 
-  createSchedule = () => {
+  /*createSchedule = () => {
     CreateScheduleDialog.showModal().onClose(schedule =>
       Schedule.create(schedule).then(newSchedule => navigateTo(`schedules/${newSchedule.id}`))
     );
@@ -81,23 +81,14 @@ class SchedulesList extends React.Component {
   onScheduleDeleted = () => {
     this.props.controller.updatePagination({ page: 1 });
     this.props.controller.update();
-  };
+  };*/
 
   render() {
     const { controller } = this.props;
 
     return (
-      <div data-test="ScheduleList">
-        {currentUser.isAdmin && (
-          <div className="m-b-15">
-            <Button type="primary" onClick={this.createSchedule}>
-              <i className="fa fa-plus m-r-5" aria-hidden="true" />
-              New Schedule
-            </Button>
-          </div>
-        )}
-
-
+      <div>
+        Hello World
       </div>
     );
   }
@@ -111,20 +102,7 @@ const SchedulesListPage = wrapSettingsTab(
     path: "schedules",
     order: 8,
   },
-  itemsList(
-    SchedulesList,
-    () =>
-      new ResourceItemsSource({
-        isPlainList: true,
-        getRequest() {
-          return {};
-        },
-        getResource() {
-          return Schedule.query.bind(Schedule);
-        },
-      }),
-    () => new StateStorage({ orderByField: "created_at", itemsPerPage: 10 })
-  )
+  SchedulesList
 );
 
 routes.register(
