@@ -32,9 +32,9 @@ class MQTT(BaseResource):
 
         topic = req["topic"]
         message = req["message"]
-        is_published = self.publish(topic, message)
+        is_published = self.client.publish(topic, message)
 
-        self.disconnect()
+        self.client.disconnect()
 
         if is_published:
             self.record_event(
