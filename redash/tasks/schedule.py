@@ -129,13 +129,13 @@ def trigger_mqtt(schedules):
     for s in schedules:
         meta = {"topic": s.args["topic"], "message": s.args["message"]}
         connect_info = {"server": s.args["server"], "port": s.args["port"]}
-        if s.objective == "emqx":
-            client = MQTTClient(connect_info["server"], connect_info["port"])
-            client.connect(s.args["username"], s.args["password"])
-            if client.is_connected():
-                if client.publish(meta["topic"], meta["message"]):
-                    logger.info("Done scheduling: %s" % meta)
-                else:
-                    logger.warning("Failed scheduling: %s" % meta)
+
+        client = MQTTClient(connect_info["server"], connect_info["port"])
+        client.connect(s.args["username"], s.args["password"])
+        if client.is_connected():
+            if client.publish(meta["topic"], meta["message"]):
+                logger.info("Done scheduling: %s" % meta)
             else:
-                logger.warning("Cannot connect to mqtt: %s" % connect_info)
+                logger.warning("Failed scheduling: %s" % meta)
+        else:
+            logger.warning("Cannot connect to mqtt: %s" % connect_info)
