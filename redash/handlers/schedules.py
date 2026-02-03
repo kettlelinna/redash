@@ -29,7 +29,7 @@ def create_schedule(req, org):
         name=name,
         org=org,
         description=req.get("description"),
-        schedule={"interval": payload.get("interval"), "disable": parse_boolean(str(payload.get("interval")))},
+        schedule={"interval": payload.get("interval"), "disable": parse_boolean(str(payload.get("disable")))},
         objective=payload["objective"],
         args=payload.get("args")
     )
@@ -76,7 +76,7 @@ class ScheduleResource(BaseResource):
         name = req["name"].lower()
         schedule.name = name
         schedule.description = req.get("description")
-        schedule.schedule = {"interval": payload.get("interval"), "disable": parse_boolean(str(payload.get("interval")))}
+        schedule.schedule = {"interval": payload.get("interval"), "disable": parse_boolean(str(payload.get("disable")))}
         schedule.objective = payload["objective"]
         schedule.args = payload.get("args")
 
