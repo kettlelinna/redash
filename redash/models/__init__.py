@@ -1583,7 +1583,7 @@ class Schedule(TimestampMixin, db.Model, BelongsToOrgMixin):
             "objective": self.objective,
             "schedule": {
                 "interval": self.interval,
-                "disable": self.schedule.disable
+                "disable": self.schedule["disable"]
             },
             "args": self.args
         }
@@ -1592,7 +1592,7 @@ class Schedule(TimestampMixin, db.Model, BelongsToOrgMixin):
             "name": self.name,
             "description": self.description,
             "interval": self.interval,
-            "disable": self.schedule.disable,
+            "disable": self.schedule["disable"],
             "created_at": self.created_at,
             "payload": json.dumps(payload, indent=4, ensure_ascii=False) # indent=4 mean pretty json
         }
