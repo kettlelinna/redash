@@ -1578,13 +1578,19 @@ class Schedule(TimestampMixin, db.Model, BelongsToOrgMixin):
         return list(outdated_schedules.values())
 
     def to_dict(self):
+        payload = {
+            "objective": self.objective,
+            "interval": self.interval,
+            "args": self.args
+        }
         d = {
             "id": self.id,
-            "schedule": self.schedule,
+            "name": self.name,
+            "description": self.description,
             "interval": self.interval,
             "objective": self.objective,
             "created_at": self.created_at,
-            "args": self.args
+            "payload": payload
         }
 
         return d
