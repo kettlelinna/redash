@@ -1,26 +1,29 @@
-import { isEmpty, reject } from "lodash";
 import React from "react";
-import PropTypes from "prop-types";
 
 import Button from "antd/lib/button";
 import routeWithUserSession from "@/components/ApplicationArea/routeWithUserSession";
+import Link from "@/components/Link";
 import navigateTo from "@/components/ApplicationArea/navigateTo";
-import CardsList from "@/components/cards-list/CardsList";
+import Paginator from "@/components/Paginator";
+
+import { wrap as itemsList, ControllerType } from "@/components/items-list/ItemsList";
+import { ResourceItemsSource } from "@/components/items-list/classes/ItemsSource";
+import { StateStorage } from "@/components/items-list/classes/StateStorage";
+
 import LoadingState from "@/components/items-list/components/LoadingState";
-import CreateSourceDialog from "@/components/CreateSourceDialog";
-import DynamicComponent, { registerComponent } from "@/components/DynamicComponent";
-import helper from "@/components/dynamic-form/dynamicFormHelper";
-import wrapSettingsTab from "@/components/SettingsWrapper";
-import PlainButton from "@/components/PlainButton";
+import EmptyState from "@/components/items-list/components/EmptyState";
+import ItemsTable, { Columns } from "@/components/items-list/components/ItemsTable";
 
-import DataSource, { IMG_ROOT } from "@/services/data-source";
-import { policy } from "@/services/policy";
-import recordEvent from "@/services/recordEvent";
+import CreateScheduleDialog from "@/components/schedules/CreateScheduleDialog";
+import DeleteScheduleButton from "@/components/schedules/DeleteScheduleButton";
+
+import Schedule from "@/services/schedule";
+import { currentUser } from "@/services/auth";
 import routes from "@/services/routes";
-import {ControllerType} from "@/components/items-list/ItemsList";
-import {Columns} from "@/components/items-list/components/ItemsTable";
+import wrapSettingsTab from "@/components/SettingsWrapper";
 
-class SchedulesList3 extends React.Component {
+
+class SchedulesList extends React.Component {
   static propTypes = {
     controller: ControllerType.isRequired,
   };
@@ -37,35 +40,120 @@ class SchedulesList3 extends React.Component {
         width: null,
       }
     ),
+    Columns.custom(
+      (text, schedule) => (
+        <Button.Group>
+          <Link.Button href={`schedules/${schedule.id}`}>Edit</Link.Button>
+        </Button.Group>
+      ),
+      {
+        width: "1%",
+        className: "text-nowrap",
+      }
+    ),
+    Columns.custom(
+      (text, schedule) => {
+        return (
+          <DeleteScheduleButton
+            className="w-100"
+            disabled=false
+            schedule={schedule}
+            title=null
+            onClick={() => this.onScheduleDeleted()}>
+            Delete
+          </DeleteScheduleButton>
+        );
+      },
+      {
+        width: "1%",
+        className: "text-nowrap p-l-0",
+        isAvailable: () => currentUser.isAdmin,
+      }
+    ),
   ];
+
+  createSchedule = () => {
+    CreateScheduleDialog.showModal().onClose(schedule =>
+      Schedule.create(schedule).then(newSchedule => navigateTo(`schedules/${newSchedule.id}`))
+    );
+  };
+
+  onScheduleDeleted = () => {
+    this.props.controller.updatePagination({ page: 1 });
+    this.props.controller.update();
+  };
 
   render() {
     const { controller } = this.props;
 
     return (
-      <div>
-        Hello World
+      <div data-test="ScheduleList">
+        {currentUser.isAdmin && (
+          <div className="m-b-15">
+            <Button type="primary" onClick={this.createSchedule}>
+              <i className="fa fa-plus m-r-5" aria-hidden="true" />
+              New Schedule
+            </Button>
+          </div>
+        )}
+
+        {!controller.isLoaded && <LoadingState className="" />}
+        {controller.isLoaded && controller.isEmpty && <EmptyState className="" />}
+        {controller.isLoaded && !controller.isEmpty && (
+          <div className="table-responsive">
+            <ItemsTable
+              items={controller.pageItems}
+              columns={this.listColumns}
+              showHeader={false}
+              context={this.actions}
+              orderByField={controller.orderByField}
+              orderByReverse={controller.orderByReverse}
+              toggleSorting={controller.toggleSorting}
+            />
+            <Paginator
+              showPageSizeSelect
+              totalCount={controller.totalItemsCount}
+              pageSize={controller.itemsPerPage}
+              onPageSizeChange={itemsPerPage => controller.updatePagination({ itemsPerPage })}
+              page={controller.page}
+              onChange={page => controller.updatePagination({ page })}
+            />
+          </div>
+        )}
       </div>
     );
   }
 }
 
 const SchedulesListPage = wrapSettingsTab(
-  "Schedules3.List",
+  "Schedules.List",
   {
     permission: "admin",
-    title: "Schedules3",
-    path: "schedules3",
-    order: 9,
+    title: "Schedules",
+    path: "schedules",
+    order: 3,
   },
-  SchedulesList3
+  itemsList(
+    SchedulesList,
+    () =>
+      new ResourceItemsSource({
+        isPlainList: true,
+        getRequest() {
+          return {};
+        },
+        getResource() {
+          return Schedule.query.bind(Schedule);
+        },
+      }),
+    () => new StateStorage({ orderByField: "created_at", orderByReverse: true, itemsPerPage: 10 })
+  )
 );
 
 routes.register(
-  "Schedules3.List",
+  "Schedules.List",
   routeWithUserSession({
-    path: "/schedules3",
-    title: "Schedules3",
-    render: pageProps => <SchedulesListPage {...pageProps} currentPage="schedules3" />,
+    path: "/schedules",
+    title: "Schedules",
+    render: pageProps => <SchedulesListPage {...pageProps} currentPage="schedules" />,
   })
 );

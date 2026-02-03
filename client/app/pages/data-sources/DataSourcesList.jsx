@@ -17,8 +17,7 @@ import DataSource, { IMG_ROOT } from "@/services/data-source";
 import { policy } from "@/services/policy";
 import recordEvent from "@/services/recordEvent";
 import routes from "@/services/routes";
-import {ControllerType} from "@/components/items-list/ItemsList";
-import {Columns} from "@/components/items-list/components/ItemsTable";
+
 
 export function DataSourcesListComponent({ dataSources, onClickCreate }) {
   const items = dataSources.map(dataSource => ({
@@ -185,55 +184,5 @@ routes.register(
     path: "/data_sources/new",
     title: "Data Sources",
     render: pageProps => <DataSourcesListPage {...pageProps} isNewDataSourcePage />,
-  })
-);
-
-class SchedulesList2 extends React.Component {
-  static propTypes = {
-    controller: ControllerType.isRequired,
-  };
-
-  listColumns = [
-    Columns.custom(
-      (text, schedule) => (
-        <div>
-          {schedule.name}
-        </div>
-      ),
-      {
-        field: "name",
-        width: null,
-      }
-    ),
-  ];
-
-  render() {
-    const { controller } = this.props;
-
-    return (
-      <div>
-        Hello World
-      </div>
-    );
-  }
-}
-
-const SchedulesListPage = wrapSettingsTab(
-  "Schedules2.List",
-  {
-    permission: "admin",
-    title: "Schedules2",
-    path: "schedules2",
-    order: 8,
-  },
-  SchedulesList2
-);
-
-routes.register(
-  "Schedules2.List",
-  routeWithUserSession({
-    path: "/schedules2",
-    title: "Schedules2",
-    render: pageProps => <SchedulesListPage {...pageProps} currentPage="schedules2" />,
   })
 );
