@@ -79,7 +79,7 @@ def periodic_job_definitions():
             "func": send_aggregated_errors,
             "interval": timedelta(minutes=settings.SEND_FAILURE_EMAIL_INTERVAL),
         },
-        {"func": refresh_schedules, "interval": timedelta(seconds=3)},
+        {"func": refresh_schedules, "interval": timedelta(seconds=1)},
     ]
 
     if settings.VERSION_CHECK:
