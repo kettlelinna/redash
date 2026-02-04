@@ -6,6 +6,7 @@ from datetime import datetime, timedelta
 from rq.job import Job
 from rq_scheduler import Scheduler
 
+from redash.utils.mqtt import MQTTClient
 from redash import rq_redis_connection, settings
 from redash.tasks.failure_report import send_aggregated_errors
 from redash.tasks.general import sync_user_details, version_check
@@ -125,13 +126,13 @@ def refresh_schedules():
 
 
 def trigger_mqtt(schedules):
-    from redash.utils.mqtt import MQTTClient
     for s in schedules:
         meta = {"topic": s.args["topic"], "message": s.args["message"]}
-        #connect_info = {"server": "emqx-headless.emqx.svc.cluster.local", "port": 1883, "username": s.args["username"], "password": s.args["password"]}
+        #connect_info = {"server": s.args["server"], "port": s.args["port"], "username": s.args["username"], "password": s.args["password"]}
         connect_info = {"server": "emqx-headless.emqx.svc.cluster.local", "port": 1883, "username": "13501568940@163.com", "password": "kFhP7OLKacZ1fuEtCpTzM0E9Ta1GUY9yAglDMQym"}
-        client = MQTTClient(connect_info["server"], connect_info["port"])
-        client.connect(connect_info["username"], connect_info["password"])
+
+        client = MQTTClient(server=connect_info["server"].strip(), port=connect_info["port"])
+        client.connect(username=connect_info["username"].strip(), password=connect_info["password"].strip())
         is_connected = client.is_connected()
         if is_connected:
             if client.publish(meta["topic"], meta["message"]):

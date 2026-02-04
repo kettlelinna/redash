@@ -1,8 +1,5 @@
-import logging
 import paho.mqtt.client as mqtt
 
-logging.basicConfig(level=logging.DEBUG)
-logger = logging.getLogger(__name__)
 
 class MQTTClient:
     def __init__(self, server, port):
