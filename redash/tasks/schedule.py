@@ -132,7 +132,7 @@ def on_connect(client, userdata, flags, reason_code, properties):
         connect_info = userdata["connect_info"]
         meta = userdata["meta"]
         if client.is_connected():
-            msg_info = client.publish(meta["topic"].strip(), meta["message"].strip(), qos=1)
+            msg_info = client.publish(meta["topic"].strip(), meta["message"], qos=1)
             msg_info.wait_for_publish()
             if msg_info.is_published():
                 logger.info("Done scheduling mqtt: %s" % meta)
@@ -154,7 +154,7 @@ def on_log(client, userdata, paho_log_level, message):
 
 def trigger_mqtt(schedules):
     for s in schedules:
-        meta = {"topic": s.args["topic"], "message": s.args["message"]}
+        meta = {"topic": s.args["topic"], "message": json.dumps(s.args["message"])}
         #connect_info = {"server": s.args["server"], "port": s.args["port"], "username": s.args["username"], "password": s.args["password"]}
         connect_info = {"server": "emqx-headless.emqx.svc.cluster.local", "port": 1883, "username": "13501568940@163.com", "password": "kFhP7OLKacZ1fuEtCpTzM0E9Ta1GUY9yAglDMQym"}
 
