@@ -30,14 +30,14 @@ class MQTT(BaseResource):
         client = MQTTClient(server, port)
         client.connect(username, password)
 
-        if not self.client.is_connected():
+        if not client.is_connected():
             abort(500, message="Connect mqtt failed.")
 
         topic = req["topic"].strip()
         message = req["message"]
         is_published = self.client.publish(topic, message)
 
-        self.client.disconnect()
+        client.disconnect()
 
         if is_published:
             self.record_event(
