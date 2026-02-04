@@ -129,6 +129,8 @@ def refresh_schedules():
 def on_connect(client, userdata, flags, reason_code, properties):
     if reason_code == 0:
         logger.warning("Connected[mqtt] successfully, flag: %s" % client.is_connected())
+        client.loop_start()
+        logger.warning("Check[mqtt] again, flag: %s" % client.is_connected())
     else:
         logger.warning(f"Connection[mqtt] failed with code {reason_code}")
 
