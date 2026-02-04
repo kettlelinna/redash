@@ -12,6 +12,8 @@ class MQTTClient:
         self.client.username_pw_set(username.strip(), password.strip())
         self.client.connect(self.server.strip(), int(self.port), keepalive=60)
         self.client.loop_start()
+        if not self.client.is_connected():
+            self.client.loop_start()
 
     def disconnect(self):
         self.client.disconnect()
