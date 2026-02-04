@@ -9,8 +9,8 @@ class MQTTClient:
         self.client.enable_logger()
 
     def connect(self, username, password):
-        self.client.username_pw_set(username, password)
-        self.client.connect(self.server, self.port, keepalive=60)
+        self.client.username_pw_set(username.strip(), password.strip())
+        self.client.connect(self.server.strip(), int(self.port), keepalive=60)
         self.client.loop_start()
 
     def disconnect(self):

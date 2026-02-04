@@ -131,8 +131,8 @@ def trigger_mqtt(schedules):
         #connect_info = {"server": s.args["server"], "port": s.args["port"], "username": s.args["username"], "password": s.args["password"]}
         connect_info = {"server": "emqx-headless.emqx.svc.cluster.local", "port": 1883, "username": "13501568940@163.com", "password": "kFhP7OLKacZ1fuEtCpTzM0E9Ta1GUY9yAglDMQym"}
 
-        client = MQTTClient(server=connect_info["server"].strip(), port=connect_info["port"])
-        client.connect(username=connect_info["username"].strip(), password=connect_info["password"].strip())
+        client = MQTTClient(server=connect_info["server"], port=connect_info["port"])
+        client.connect(username=connect_info["username"], password=connect_info["password"])
         is_connected = client.is_connected()
         if is_connected:
             if client.publish(meta["topic"], meta["message"]):
