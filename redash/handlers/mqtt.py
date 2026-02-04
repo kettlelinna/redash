@@ -8,6 +8,13 @@ from redash.utils.mqtt import MQTTClient
 
 class MQTT(BaseResource):
 
+    def __init__(self, *args, **kwargs):
+        super(MQTT, self).__init__(*args, **kwargs)
+
+        self.server = "emqx-headless.emqx.svc.cluster.local"
+        self.port = 1883
+        self.client = MQTTClient(self.server, self.port, self.current_user.email, self.current_user.api_key)
+
     @require_admin
     def post(self):
         req = request.get_json(force=True)
@@ -26,16 +33,18 @@ class MQTT(BaseResource):
         username = req["username"].strip() if "username" in req else self.current_user.email
         password = req["password"].strip() if "password" in req else self.current_user.api_key
 
-        client = MQTTClient(server, port, username, password)
+        #self.client = MQTTClient(server, port)
+        #self.client.connect(username, password)
+        #self.client.connect(self.current_user.email, self.current_user.api_key)
 
-        if not client.is_connected():
+        if not self.client.is_connected():
             abort(500, message="Connect mqtt failed.")
 
         topic = req["topic"].strip()
         message = req["message"]
-        is_published = client.publish(topic, message)
+        is_published = self.client.publish(topic, message)
 
-        client.disconnect()
+        self.client.disconnect()
 
         if is_published:
             self.record_event(
