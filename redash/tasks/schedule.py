@@ -1,11 +1,11 @@
 import hashlib
 import json
 import logging
+import requests
 from datetime import datetime, timedelta
 
 from rq.job import Job
 from rq_scheduler import Scheduler
-import paho.mqtt.client as mqtt
 
 from redash.utils.mqtt import MQTTClient
 from redash import rq_redis_connection, settings
@@ -20,7 +20,6 @@ from redash.tasks.queries import (
 )
 from redash.tasks.worker import Queue
 
-logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 
@@ -126,44 +125,20 @@ def refresh_schedules():
     mqtt_schedules = [s for s in schedules if s.objective == "mqtt"]
     trigger_mqtt(mqtt_schedules)
 
-def on_connect(client, userdata, flags, reason_code, properties):
-    if reason_code == 0:
-        logger.warning("Connected[mqtt] successfully, flag: %s, userdata: %s" % (client.is_connected(), userdata))
-        connect_info = userdata["connect_info"]
-        meta = userdata["meta"]
-        if client.is_connected():
-            msg_info = client.publish(meta["topic"].strip(), meta["message"], qos=1)
-            msg_info.wait_for_publish(timeout=5)
-            if msg_info.is_published():
-                logger.info("Done scheduling mqtt: %s" % meta)
-            else:
-                logger.warning("Failed scheduling mqtt: %s" % meta)
-            client.disconnect()
-        else:
-            logger.warning("Cannot connect to mqtt: %s" % connect_info)
-    else:
-        logger.warning(f"Connection[mqtt] failed with code {reason_code}")
-
-def on_disconnect(client, userdata, flags, reason_code, properties):
-    logger.warning(f'Disconnected[mqtt] with result code {reason_code}')
-
-def on_log(client, userdata, paho_log_level, message):
-    logger.warning("mqtt: %s" % message)
-    # if paho_log_level == mqtt.LogLevel.MQTT_LOG_ERR:
-    #     logger.warning(messages)
 
 def trigger_mqtt(schedules):
     for s in schedules:
         meta = {"topic": s.args["topic"], "message": json.dumps(s.args["message"])}
-        #connect_info = {"server": s.args["server"], "port": s.args["port"], "username": s.args["username"], "password": s.args["password"]}
-        connect_info = {"server": "emqx-headless.emqx.svc.cluster.local", "port": 1883, "username": "13501568940@163.com", "password": "kFhP7OLKacZ1fuEtCpTzM0E9Ta1GUY9yAglDMQym"}
+        connect_info = {"server": s.args["server"], "port": s.args["port"], "username": s.args["username"], "password": s.args["password"]}
 
-        client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
-        client.user_data_set({"meta": meta, "connect_info": connect_info})
-        client.on_connect = on_connect
-        client.on_disconnect = on_disconnect
-        client.on_log = on_log
-        client.enable_logger()
-        client.username_pw_set(connect_info["username"].strip(), connect_info["password"].strip())
-        client.connect(connect_info["server"].strip(), int(connect_info["port"]), keepalive=60)
-        client.loop_start()
+        headers = {'Content-Type': 'application/json'}
+        data = meta.update(connect_info)
+        data_json = json.dumps(data)
+
+        response = requests.post("http://redash-server.redash.svc.cluster.local/send/command/mqtt?api_key=%s" % connect_info["password"], data=data_json, headers=headers)
+
+        response = json.loads(response.text)
+        if int(response["status_code"]) == 200:
+            logger.info("Trigger mqtt successful. %s" % meta)
+        else:
+            logger.warning("Trigger mqtt failed. %s" % meta)

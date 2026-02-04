@@ -1,3 +1,4 @@
+import json
 import paho.mqtt.client as mqtt
 
 
@@ -19,6 +20,6 @@ class MQTTClient:
         return self.client.is_connected()
 
     def publish(self, topic, message, qos=1):
-        msg_info = self.client.publish(topic, message, qos=qos)
+        msg_info = self.client.publish(topic, json.dumps(message), qos=qos)
         msg_info.wait_for_publish()
         return msg_info.is_published()
