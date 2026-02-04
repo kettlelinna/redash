@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 
 from rq.job import Job
 from rq_scheduler import Scheduler
+import paho.mqtt.client as mqtt
 
 from redash.utils.mqtt import MQTTClient
 from redash import rq_redis_connection, settings
@@ -131,15 +132,19 @@ def trigger_mqtt(schedules):
         #connect_info = {"server": s.args["server"], "port": s.args["port"], "username": s.args["username"], "password": s.args["password"]}
         connect_info = {"server": "emqx-headless.emqx.svc.cluster.local", "port": 1883, "username": "13501568940@163.com", "password": "kFhP7OLKacZ1fuEtCpTzM0E9Ta1GUY9yAglDMQym"}
 
-        client = MQTTClient(server=connect_info["server"], port=connect_info["port"])
-        client.connect(username=connect_info["username"], password=connect_info["password"])
-        is_connected = client.is_connected()
-        if is_connected:
-            if client.publish(meta["topic"], meta["message"]):
+        client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
+        client.enable_logger()
+        client.username_pw_set(connect_info["username"].strip(), connect_info["password"].strip())
+        client.connect(connect_info["server"].strip(), int(connect_info["port"]), keepalive=60)
+        client.loop_start()
+
+        if client.is_connected():
+            msg_info = client.publish(meta["topic"].strip(), meta["message"].strip(), qos=1)
+            msg_info.wait_for_publish()
+            if msg_info.is_published():
                 logger.info("Done scheduling mqtt: %s" % meta)
             else:
                 logger.warning("Failed scheduling mqtt: %s" % meta)
             client.disconnect()
         else:
-            connect_info["is_connected"] = is_connected
             logger.warning("Cannot connect to mqtt: %s" % connect_info)

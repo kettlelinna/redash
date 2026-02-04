@@ -6,14 +6,11 @@ class MQTTClient:
         self.server = server
         self.port = port
         self.client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
-        self.client.enable_logger()
 
     def connect(self, username, password):
         self.client.username_pw_set(username.strip(), password.strip())
         self.client.connect(self.server.strip(), int(self.port), keepalive=60)
         self.client.loop_start()
-        if not self.client.is_connected():
-            self.client.loop_start()
 
     def disconnect(self):
         self.client.disconnect()
