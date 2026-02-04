@@ -10,7 +10,7 @@ from redash.settings import parse_boolean
 
 def check_mqtt_params(req):
     require_fields(req["payload"], ("args",))
-    require_fields(req["payload"]["args"], ("topic", "message", "server", "port", "username", "password"))
+    require_fields(req["payload"]["args"], ("topic", "message", "api_key"))
 
 
 def check_mandatory_params(req):

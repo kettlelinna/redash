@@ -13,29 +13,18 @@ class MQTT(BaseResource):
 
         self.server = "emqx-headless.emqx.svc.cluster.local"
         self.port = 1883
+        # have to connect within __init__ otherwise can not connect
         self.client = MQTTClient(self.server, self.port, self.current_user.email, self.current_user.api_key)
 
     @require_admin
     def post(self):
         req = request.get_json(force=True)
         if "topic" not in req:
+            self.client.disconnect()
             abort(400, message="Parameter topic is mandatory.")
         elif "message" not in req:
+            self.client.disconnect()
             abort(400, message="Parameter message is mandatory.")
-        elif "port" in req:
-            try:
-                int(req["port"])
-            except Exception:
-                abort(400, message="Parameter port is invalid.")
-
-        server = req["server"].strip() if "server" in req else "emqx-headless.emqx.svc.cluster.local"
-        port = int(req["port"]) if "port" in req else 1883
-        username = req["username"].strip() if "username" in req else self.current_user.email
-        password = req["password"].strip() if "password" in req else self.current_user.api_key
-
-        #self.client = MQTTClient(server, port)
-        #self.client.connect(username, password)
-        #self.client.connect(self.current_user.email, self.current_user.api_key)
 
         if not self.client.is_connected():
             abort(500, message="Connect mqtt failed.")

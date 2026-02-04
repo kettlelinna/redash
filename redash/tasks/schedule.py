@@ -129,12 +129,12 @@ def refresh_schedules():
 def trigger_mqtt(schedules):
     for s in schedules:
         meta = {"topic": s.args["topic"], "message": json.dumps(s.args["message"])}
-        connect_info = {"server": s.args["server"], "port": s.args["port"], "username": s.args["username"], "password": s.args["password"]}
+        connect_info = {"api_key": s.args["api_key"]}
 
         headers = {'Content-Type': 'application/json'}
         data = meta.update(connect_info)
         data_json = json.dumps(data)
 
-        response = requests.post("http://redash-server.redash.svc.cluster.local/send/command/mqtt?api_key=%s" % connect_info["password"], data=data_json, headers=headers)
+        response = requests.post("http://redash-server.redash.svc.cluster.local/send/command/mqtt?api_key=%s" % connect_info["api_key"], data=data_json, headers=headers)
 
-        logger.info("Trigger mqtt successful with %s. Response: %s" % (meta, response.text))
+        logger.info("Trigger mqtt with %s. Response: %s" % (meta, response.text))
