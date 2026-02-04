@@ -20,6 +20,7 @@ from redash.tasks.queries import (
 )
 from redash.tasks.worker import Queue
 
+logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 
@@ -125,6 +126,19 @@ def refresh_schedules():
     mqtt_schedules = [s for s in schedules if s.objective == "mqtt"]
     trigger_mqtt(mqtt_schedules)
 
+def on_connect(client, userdata, flags, reason_code, properties):
+    if reason_code == 0:
+        logger.warning("Connected[mqtt] successfully")
+    else:
+        logger.warning(f"Connection[mqtt] failed with code {reason_code}")
+
+def on_disconnect(client, userdata, flags, reason_code, properties):
+    logger.warning(f'Disconnected[mqtt] with result code {reason_code}')
+
+def on_log(client, userdata, paho_log_level, message):
+    logger.warning("mqtt %s" % message)
+    # if paho_log_level == mqtt.LogLevel.MQTT_LOG_ERR:
+    #     logger.warning(messages)
 
 def trigger_mqtt(schedules):
     for s in schedules:
@@ -133,6 +147,9 @@ def trigger_mqtt(schedules):
         connect_info = {"server": "emqx-headless.emqx.svc.cluster.local", "port": 1883, "username": "13501568940@163.com", "password": "kFhP7OLKacZ1fuEtCpTzM0E9Ta1GUY9yAglDMQym"}
 
         client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
+        client.on_connect = on_connect
+        client.on_disconnect = on_disconnect
+        client.on_log = on_log
         client.enable_logger()
         client.username_pw_set(connect_info["username"].strip(), connect_info["password"].strip())
         client.connect(connect_info["server"].strip(), int(connect_info["port"]), keepalive=60)
