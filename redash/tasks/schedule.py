@@ -137,8 +137,4 @@ def trigger_mqtt(schedules):
 
         response = requests.post("http://redash-server.redash.svc.cluster.local/send/command/mqtt?api_key=%s" % connect_info["password"], data=data_json, headers=headers)
 
-        response = json.loads(response.text)
-        if int(response["status_code"]) == 200:
-            logger.info("Trigger mqtt successful. %s" % meta)
-        else:
-            logger.warning("Trigger mqtt failed. %s" % meta)
+        logger.info("Trigger mqtt successful with %s. Response: %s" % (meta, response.text))
