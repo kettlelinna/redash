@@ -125,7 +125,7 @@ def refresh_schedules():
     mqtt_schedules = [s for s in schedules if s.objective == "mqtt"]
     trigger_mqtt(mqtt_schedules)
 
-
+# have to use http request as cannot connect mqtt in this function level, is_connected() always False
 def trigger_mqtt(schedules):
     for s in schedules:
         meta = {"topic": s.args["topic"], "message": json.dumps(s.args["message"])}
