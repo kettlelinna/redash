@@ -128,7 +128,7 @@ def refresh_schedules():
 
 def on_connect(client, userdata, flags, reason_code, properties):
     if reason_code == 0:
-        logger.warning("Connected[mqtt] successfully")
+        logger.warning("Connected[mqtt] successfully, flag: %s" % client.is_connected())
     else:
         logger.warning(f"Connection[mqtt] failed with code {reason_code}")
 
@@ -136,7 +136,7 @@ def on_disconnect(client, userdata, flags, reason_code, properties):
     logger.warning(f'Disconnected[mqtt] with result code {reason_code}')
 
 def on_log(client, userdata, paho_log_level, message):
-    logger.warning("mqtt %s" % message)
+    logger.warning("mqtt: %s" % message)
     # if paho_log_level == mqtt.LogLevel.MQTT_LOG_ERR:
     #     logger.warning(messages)
 
