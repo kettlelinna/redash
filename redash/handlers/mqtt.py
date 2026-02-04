@@ -6,13 +6,7 @@ from redash.permissions import require_admin
 
 from redash.utils.mqtt import MQTTClient
 
-
 class MQTT(BaseResource):
-
-    def __init__(self, *args, **kwargs):
-        super(MQTT, self).__init__(*args, **kwargs)
-
-        self.client = None
 
     @require_admin
     def post(self):
@@ -32,17 +26,16 @@ class MQTT(BaseResource):
         username = req["username"].strip() if "username" in req else self.current_user.email
         password = req["password"].strip() if "password" in req else self.current_user.api_key
 
-        self.client = MQTTClient(server, port)
-        self.client.connect(username, password)
+        client = MQTTClient(server, port, username, password)
 
-        if not self.client.is_connected():
+        if not client.is_connected():
             abort(500, message="Connect mqtt failed.")
 
         topic = req["topic"].strip()
         message = req["message"]
-        is_published = self.client.publish(topic, message)
+        is_published = client.publish(topic, message)
 
-        self.client.disconnect()
+        client.disconnect()
 
         if is_published:
             self.record_event(

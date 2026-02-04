@@ -3,14 +3,10 @@ import paho.mqtt.client as mqtt
 
 
 class MQTTClient:
-    def __init__(self, server, port):
-        self.server = server
-        self.port = port
+    def __init__(self, server, port, username, password):
         self.client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
-
-    def connect(self, username, password):
         self.client.username_pw_set(username.strip(), password.strip())
-        self.client.connect(self.server.strip(), int(self.port), keepalive=60)
+        self.client.connect(server.strip(), int(port), keepalive=60)
         self.client.loop_start()
 
     def disconnect(self):
