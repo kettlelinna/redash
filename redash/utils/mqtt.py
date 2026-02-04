@@ -7,6 +7,9 @@ class MQTTClient:
         self.port = port
         self.client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
 
+    def on_connect(self, on_connect):
+        self.client.on_connect = on_connect
+
     def connect(self, username, password):
         self.client.username_pw_set(username, password)
         self.client.connect(self.server, self.port, keepalive=60)

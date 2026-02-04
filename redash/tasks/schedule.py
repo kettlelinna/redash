@@ -128,9 +128,10 @@ def trigger_mqtt(schedules):
     from redash.utils.mqtt import MQTTClient
     for s in schedules:
         meta = {"topic": s.args["topic"], "message": s.args["message"]}
-        connect_info = {"server": "emqx-headless.emqx.svc.cluster.local", "port": 1883, "username": s.args["username"], "password": s.args["password"]}
-
+        #connect_info = {"server": "emqx-headless.emqx.svc.cluster.local", "port": 1883, "username": s.args["username"], "password": s.args["password"]}
+        connect_info = {"server": "emqx-headless.emqx.svc.cluster.local", "port": 1883, "username": "13501568940@163.com", "password": "kFhP7OLKacZ1fuEtCpTzM0E9Ta1GUY9yAglDMQym"}
         client = MQTTClient(connect_info["server"], connect_info["port"])
+        client.on_connect(on_connect=on_connect)
         client.connect(connect_info["username"], connect_info["password"])
         is_connected = client.is_connected()
         if is_connected:
@@ -142,3 +143,9 @@ def trigger_mqtt(schedules):
         else:
             connect_info["is_connected"] = is_connected
             logger.warning("Cannot connect to mqtt: %s" % connect_info)
+
+def on_connect(client, userdata, flags, rc):
+    if rc == 0:
+        logger.warning("Connected[mqtt] successfully")
+    else:
+        logger.warning(f"Connection[mqtt] failed with code {rc}")
