@@ -133,7 +133,7 @@ def on_connect(client, userdata, flags, reason_code, properties):
         meta = userdata["meta"]
         if client.is_connected():
             msg_info = client.publish(meta["topic"].strip(), meta["message"], qos=1)
-            msg_info.wait_for_publish()
+            msg_info.wait_for_publish(timeout=5)
             if msg_info.is_published():
                 logger.info("Done scheduling mqtt: %s" % meta)
             else:
