@@ -128,7 +128,7 @@ def refresh_schedules():
 
 def on_connect(client, userdata, flags, reason_code, properties):
     if reason_code == 0:
-        logger.warning("Connected[mqtt] successfully, flag: %s" % client.is_connected())
+        logger.warning("Connected[mqtt] successfully, flag: %s, userdata: %s" % (client.is_connected(), userdata))
         client.loop_start()
         logger.warning("Check[mqtt] again, flag: %s" % client.is_connected())
     else:
@@ -149,13 +149,14 @@ def trigger_mqtt(schedules):
         connect_info = {"server": "emqx-headless.emqx.svc.cluster.local", "port": 1883, "username": "13501568940@163.com", "password": "kFhP7OLKacZ1fuEtCpTzM0E9Ta1GUY9yAglDMQym"}
 
         client = mqtt.Client(mqtt.CallbackAPIVersion.VERSION2)
+        client.user_data_set(meta)
         client.on_connect = on_connect
         client.on_disconnect = on_disconnect
         client.on_log = on_log
         client.enable_logger()
         client.username_pw_set(connect_info["username"].strip(), connect_info["password"].strip())
         client.connect(connect_info["server"].strip(), int(connect_info["port"]), keepalive=60)
-        client.loop_start()
+        #client.loop_start()
 
         if client.is_connected():
             msg_info = client.publish(meta["topic"].strip(), meta["message"].strip(), qos=1)
