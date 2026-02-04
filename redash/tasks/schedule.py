@@ -129,16 +129,18 @@ def refresh_schedules():
 def on_connect(client, userdata, flags, reason_code, properties):
     if reason_code == 0:
         logger.warning("Connected[mqtt] successfully, flag: %s, userdata: %s" % (client.is_connected(), userdata))
-        # if client.is_connected():
-        #     msg_info = client.publish(meta["topic"].strip(), meta["message"].strip(), qos=1)
-        #     msg_info.wait_for_publish()
-        #     if msg_info.is_published():
-        #         logger.info("Done scheduling mqtt: %s" % meta)
-        #     else:
-        #         logger.warning("Failed scheduling mqtt: %s" % meta)
-        #     client.disconnect()
-        # else:
-        #     logger.warning("Cannot connect to mqtt: %s" % connect_info)
+        connect_info = userdata["connect_info"]
+        meta = userdata["meta"]
+        if client.is_connected():
+            msg_info = client.publish(meta["topic"].strip(), meta["message"].strip(), qos=1)
+            msg_info.wait_for_publish()
+            if msg_info.is_published():
+                logger.info("Done scheduling mqtt: %s" % meta)
+            else:
+                logger.warning("Failed scheduling mqtt: %s" % meta)
+            client.disconnect()
+        else:
+            logger.warning("Cannot connect to mqtt: %s" % connect_info)
     else:
         logger.warning(f"Connection[mqtt] failed with code {reason_code}")
 
