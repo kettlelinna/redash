@@ -128,13 +128,11 @@ def refresh_schedules():
 # have to use http request as cannot connect mqtt in this function level, is_connected() always False
 def trigger_mqtt(schedules):
     for s in schedules:
-        meta = {"topic": s.args["topic"], "message": json.dumps(s.args["message"])}
-        connect_info = {"api_key": s.args["api_key"]}
+        meta = {"topic": s.args["topic"], "message": json.dumps(s.args["message"]), "api_key": s.args["api_key"]}
 
         headers = {'Content-Type': 'application/json'}
-        data = meta.update(connect_info)
-        data_json = json.dumps(data)
+        data_json = json.dumps(meta)
 
-        response = requests.post("http://redash-server.redash.svc.cluster.local/send/command/mqtt?api_key=%s" % connect_info["api_key"], data=data_json, headers=headers)
+        response = requests.post("http://redash-server.redash.svc.cluster.local/send/command/mqtt?api_key=%s" % meta["api_key"], data=data_json, headers=headers)
 
         logger.info("Trigger mqtt with %s. Response: %s" % (meta, response.text))
